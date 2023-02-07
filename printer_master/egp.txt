@@ -20,10 +20,10 @@ function wirelink:setupEgp() {
     EGP:egpColor(1 , getThemeVec("Background"))
     
     EGP:egpRoundedBox(2,vec2(256,0),vec2(512,128))
-    EGP:egpColor(2, getThemeVec("TopBar"))
+    EGP:egpColor(2, getThemeVec("TopBarOutline"))
     
     EGP:egpRoundedBoxOutline(3,vec2(256,0),vec2(512,128))
-    EGP:egpColor(3, getThemeVec("TopBarOutline"))
+    EGP:egpColor(3, getThemeVec("TopBar"))
     
     EGP:egpText(4, "Owner:" + entity():owner():name()+" | Print Master ", vec2(15,15))
     EGP:egpColor(4, getThemeVec("TitleColor"))
