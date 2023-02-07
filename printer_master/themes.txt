@@ -2,20 +2,34 @@
 @persist Themes:table SelectedTheme:string
 
 SelectedTheme = "Dark"
-
 Themes = table()
 
-function vector getElement(Element:string) {
+function vector getThemeVec(Element:string) {
     return Themes[SelectedTheme, table][Element, vector]
 }
 
+function string getThemeString(Element:string) {
+    return Themes[SelectedTheme, table][Element, string]
+}
+
+function number getThemeNumber(Element:string) {
+    return Themes[SelectedTheme, table][Element, number]
+}
+
 Themes["Dark", table] = table()
-Themes["Dark", table]["Background", vector] = vec(0)
-Themes["Dark", table]["Font", vector] = vec(255)
-Themes["Dark", table]["Foreground", vector] = vec(50)
+Themes["Dark", table]["Background", vector] = vec(0,0,0)    #Background Color
+Themes["Dark", table]["FontSize", number] = 30              #Font Size
+Themes["Dark", table]["FontColor", vector] = vec(0,0,0)     #Font Color
+Themes["Dark", table]["Foreground", vector] = vec(0,0,0)    #Foreground Color
+
+Themes["Light", table] = table()
+Themes["Light", table]["Background", vector] = vec(0,0,0)    #Background Color
+Themes["Light", table]["FontSize", number] = 30              #Font Size
+Themes["Light", table]["FontColor", vector] = vec(0,0,0)     #Font Color
+Themes["Light", table]["Foreground", vector] = vec(0,0,0)    #Foreground Color
 
 Themes["White", table] = table()
-Themes["White", table]["Background", vector] = vec(255)
-Themes["White", table]["Font", vector] = vec(0)
-Themes["White", table]["Foreground", vector] = vec(200)
-
+Themes["White", table]["Background", vector] = vec(0,0,0)    #Background Color
+Themes["White", table]["FontSize", number] = 30              #Font Size
+Themes["White", table]["FontColor", vector] = vec(0,0,0)     #Font Color
+Themes["White", table]["Foreground", vector] = vec(0,0,0)    #Foreground Color

@@ -1,12 +1,12 @@
 @name Print Master
 
 #[ Todo:
--Chat command for removing and adding printers
--Store printers in a global variable
--Themes
+    -Chat command for removing and adding printers
+    -Store printers in a global variable
+    -Themes
+    -Languages
+    -Config file
 ]#
-
-
 
 @inputs User:wirelink Freezer:wirelink EGP:wirelink
 
@@ -19,10 +19,17 @@
 
 @persist Total StartTime Goal
 
+@persist Prefix:string
+@persist Version:string
+
 if (first() | duped()) {
     #include "printer_master/lib"
     #include "printer_master/egp"
+    #include "printer_master/themes"
+    #include "printer_master/language"
     
+    Prefix = "%"
+    Version = "v1.0"
     Goal = 100000000
     
     MinMoney = 200
@@ -53,6 +60,16 @@ if (first() | duped()) {
     EGP:setupEgp()
     
     User:setNumber("Fade", 1)
+
+    print(format(getLanguageString("WelcomeMessage"), Version))
+}
+
+if (->User | ~User) {
+    UserEnt = User:entity()
+}
+
+if (->EGP | ~EGP) {
+    EGP:setupEgp()
 }
 
 function number compare(TargetPos:vector, TargetAng:angle) {
@@ -65,8 +82,67 @@ event keyPressed(E:entity, S:string, N:number, S2:string) {
     local AimEntity = owner():aimEntity()
     if (E == owner() & S == "v" & N & AimEntity:isValid() & AimEntity:type():find("boost_printer")) {
         Printers[AimEntity:id(), entity] = AimEntity
-        print("Printer added.")
+        print(format(getLanguageString("WelcomeMessage")))
     }
+}
+
+function handleMessage(Ent:entity, Message:string, N:number) {
+    N=N
+    
+    if (Ent != owner()) { return }
+
+    if (Message:sub(1, 1) == Prefix) { 
+        Message = Message:sub(2)
+    } else { 
+        return 
+    }
+
+    hideChat(1)
+    local Args = Message:explode(" ")
+
+    if (Args[1, string] == "theme") {
+        if (!Themes:exists(Args[2, string])) {  #Check  if theme exists
+            print(format("Theme does %s not exist", Args[2, string]))
+            EGP:setupEgp()
+            return
+        }
+
+        SelectedTheme = Args[2, string]
+        print(format("Selected %s as a theme.", SelectedTheme))
+    } elseif (Args[1, string] == "language") {
+        if (!Languages:exists(Args[2, string])) {  #Check  if theme exists
+            print(format("Language does %s not exist", Args[2, string]))
+            
+            return
+        }
+
+        SelectedLanguage = Args[2, string]
+        print(format("Selected %s as a language.", SelectedLanguage))
+    } elseif (Args[1, string] == "add") { #Adds printer to list
+        local AimEntity = owner():aimEntity()
+        if (AimEntity:isValid() & AimEntity:type():find("boost_printer")) {
+            Printers[AimEntity:id(), entity] = AimEntity
+            
+            PrinterCount++
+            print(format("Printer added. Now managing %d printers!", Printers:count()))
+        }
+    } elseif (Args[1, string] == "remove") {#Removes printer from list
+        local AimEntity = owner():aimEntity()
+        if (AimEntity:isValid() & AimEntity:type():find("boost_printer")) {
+            Printers:removeEntity(AimEntity:id())
+
+            PrinterCount--
+            print(format("Printer removed. Now managing %d printers!", Printers:count()))
+        }
+    } elseif (Args[1, string] == "reset") { #Resets the chip
+        reset()
+    } elseif (Args[1, string] == "clear") { #clears the printers list
+        Printers:clear()
+    }
+}
+
+event chat(Ent:entity, Message:string, N:number) { # i dont fucking know what n is
+    handleMessage(Ent, Message, N) # we do in a function so that we can return
 }
 
 event tick(){
