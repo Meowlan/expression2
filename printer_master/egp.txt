@@ -13,21 +13,21 @@ function wirelink:setupEgp() {
     EGP:egpBox(1 ,vec2(256, 256),vec2(512,512)) #Background
     EGP:egpColor(1 , getThemeVec("Background"))
     
-    EGP:egpRoundedBox(2,vec2(256,0),vec2(512,128)) #Top Box
+    EGP:egpRoundedBox(2,vec2(256,0),vec2(512-1,128)) #Top Box
     EGP:egpColor(2, getThemeVec("TopBar"))
     
-    EGP:egpRoundedBoxOutline(3,vec2(256,0),vec2(512,128)) #Top Box Outline
+    EGP:egpRoundedBoxOutline(3,vec2(256,0),vec2(512-1,128)) #Top Box Outline
     EGP:egpColor(3, getThemeVec("TopBarOutline"))
     
     EGP:egpText(4, "Owner:" + entity():owner():name()+" | Print Master ", vec2(15,15))
     EGP:egpColor(4, getThemeVec("Title"))
     EGP:egpFont(4, getThemeString("TitleFont"), getThemeNumber("TitleSize"))
 
-    EGP:egpRoundedBox(5,vec2(256,128+12),vec2(512,128)) #Middle Box
+    EGP:egpRoundedBox(5,vec2(256,128+12),vec2(512-1,128)) #Middle Box
     EGP:egpColor(5, getThemeVec("InfoBox"))
 
-    EGP:egpRoundedBoxOutline(6,vec2(256,128+12),vec2(512,128)) #Middle Box Outline
-    EGP:egpColor(6, getThemeVec("InfoBoxOutlineine"))
+    EGP:egpRoundedBoxOutline(6,vec2(256,128+12),vec2(512-1,128)) #Middle Box Outline
+    EGP:egpColor(6, getThemeVec("InfoBoxOutline"))
     
     EGP:egpText(7, "quack", vec2(8,80)) #Info Text
     EGP:egpAlign(7, 0)
@@ -65,11 +65,11 @@ function wirelink:setupEgp() {
     EGP:egpColor(14, getThemeVec("Goal2"))
     EGP:egpFont(14,  getThemeString("InfoFont"),   getThemeNumber("InfoSize"))
 
-    EGP:egpRoundedBox(15, vec2(256,256+143),vec2(512,192+68)) # Bottom Box
+    EGP:egpRoundedBox(15, vec2(256,256+143),vec2(512-1,192+68)) # Bottom Box
     EGP:egpColor(15, getThemeVec("GraphBox"))
 
 
-    EGP:egpRoundedBoxOutline(16,vec2(256,256+143),vec2(512,192+68)) #Bottom Box Outline
+    EGP:egpRoundedBoxOutline(16,vec2(256,256+143),vec2(512-1,192+68)) #Bottom Box Outline
     EGP:egpColor(16, getThemeVec("GraphBoxOutline"))
 }
 

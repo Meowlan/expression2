@@ -1,7 +1,7 @@
 @name Themes
 @persist Themes:table SelectedTheme:string
 
-SelectedTheme = "Dark"
+SelectedTheme = "White"
 Themes = table()
 
 function vector getThemeVec(Element:string) {
@@ -29,33 +29,75 @@ function number setTheme(Theme:string) {
     }
 }
 
-#gonna put into e2 ok
-Themes["White", table] = table()
+function initThemes() {
+    Themes["White", table] = table()
+    Themes["White", table]["TitleFont", string] = ""
+    Themes["White", table]["TitleSize", number] = 40
+    Themes["White", table]["InfoFont", string] = ""               
+    Themes["White", table]["InfoSize", number] = 30           
+    Themes["White", table]["Background", vector] = vec(255)
+    Themes["White", table]["TopBar", vector] = vec(200)
+    Themes["White", table]["TopBarOutline", vector] = vec(0)
+    Themes["White", table]["Title", vector] = vec(30)
+    Themes["White", table]["InfoBox", vector] = vec(255)
+    Themes["White", table]["InfoBoxOutline", vector] = vec(0)
+    Themes["White", table]["Info1", vector] = vec(30)
+    Themes["White", table]["Info2", vector] = vec(30)
+    Themes["White", table]["Info3", vector] = vec(30)
+    Themes["White", table]["Info4", vector] = vec(30)
+    Themes["White", table]["Goal", vector] = vec(30)
+    Themes["White", table]["Bar", vector] = vec(30)
+    Themes["White", table]["BarOutline", vector] = vec(30)
+    Themes["White", table]["Goal2", vector] = vec(30)
+    Themes["White", table]["GraphBox", vector] = vec(255)
+    Themes["White", table]["GraphBoxOutline", vector] =vec(0)
+    Themes["White", table]["Graph", vector] = vec(0)
 
-Themes["Randon", table] = table()
-Themes["Random", table]["TitleFont", string] = ""
-Themes["Random", table]["TitleSize", number] = 40
+    Themes["Dark", table] = table()
+    Themes["Dark", table]["TitleFont", string] = ""
+    Themes["Dark", table]["TitleSize", number] = 40
+    Themes["Dark", table]["InfoFont", string] = ""               
+    Themes["Dark", table]["InfoSize", number] = 30           
+    Themes["Dark", table]["Background", vector] = vec(13, 17, 23)
+    Themes["Dark", table]["TopBar", vector] = vec(13, 17, 23)
+    Themes["Dark", table]["TopBarOutline", vector] = vec(48, 54, 61)
+    Themes["Dark", table]["Title", vector] = vec(201, 209, 217)
+    Themes["Dark", table]["InfoBox", vector] = vec(13, 17, 23)
+    Themes["Dark", table]["InfoBoxOutline", vector] = vec(48, 54, 61)
+    Themes["Dark", table]["Info1", vector] = vec(201, 209, 217)
+    Themes["Dark", table]["Info2", vector] = vec(201, 209, 217)
+    Themes["Dark", table]["Info3", vector] = vec(201, 209, 217)
+    Themes["Dark", table]["Info4", vector] = vec(201, 209, 217)
+    Themes["Dark", table]["Goal", vector] = vec(201, 209, 217)
+    Themes["Dark", table]["Bar", vector] = vec(201, 209, 217)
+    Themes["Dark", table]["BarOutline", vector] = vec(48, 54, 61)
+    Themes["Dark", table]["Goal2", vector] = vec(201, 209, 217)
+    Themes["Dark", table]["GraphBox", vector] = vec(13, 17, 23)
+    Themes["Dark", table]["GraphBoxOutline", vector] = vec(48, 54, 61)
+    Themes["Dark", table]["Graph", vector] = vec(201, 209, 217)
 
-Themes["Random", table]["InfoFont", string] = ""               
-Themes["Random", table]["InfoSize", number] = 30           
+    Themes["Random", table] = table()
+    Themes["Random", table]["TitleFont", string] = ""
+    Themes["Random", table]["TitleSize", number] = 40
+    Themes["Random", table]["InfoFont", string] = ""               
+    Themes["Random", table]["InfoSize", number] = 30           
+    Themes["Random", table]["Background", vector] = randvec(0, 255)
+    Themes["Random", table]["TopBar", vector] = randvec(0, 255)
+    Themes["Random", table]["TopBarOutline", vector] = randvec(0, 255)
+    Themes["Random", table]["Title", vector] = randvec(0, 255)
+    Themes["Random", table]["InfoBox", vector] = randvec(0, 255)
+    Themes["Random", table]["InfoBoxOutline", vector] = randvec(0, 255)
+    Themes["Random", table]["Info1", vector] = randvec(0, 255)
+    Themes["Random", table]["Info2", vector] = randvec(0, 255)
+    Themes["Random", table]["Info3", vector] = randvec(0, 255)
+    Themes["Random", table]["Info4", vector] = randvec(0, 255)
+    Themes["Random", table]["Goal", vector] = randvec(0, 255)
+    Themes["Random", table]["Bar", vector] = randvec(0, 255)
+    Themes["Random", table]["BarOutline", vector] = randvec(0, 255)
+    Themes["Random", table]["Goal2", vector] = randvec(0, 255)
+    Themes["Random", table]["GraphBox", vector] = randvec(0, 255)
+    Themes["Random", table]["GraphBoxOutline", vector] = randvec(0, 255)
+    Themes["Random", table]["Graph", vector] = randvec(0, 255)
+}
 
-Themes["Random", table]["Background", vector] = randvec(0, 255)
-Themes["Random", table]["TopBar", vector] = randvec(0, 255)
-Themes["Random", table]["TopBarOutline", vector] = randvec(0, 255)
-Themes["Random", table]["Title", vector] = randvec(0, 255)
-Themes["Random", table]["InfoBox", vector] = randvec(0, 255)
-Themes["Random", table]["InfoBoxOutline", vector] = randvec(0, 255)
-Themes["Random", table]["Info1", vector] = randvec(0, 255)
-Themes["Random", table]["Info2", vector] = randvec(0, 255)
-Themes["Random", table]["Info3", vector] = randvec(0, 255)
-Themes["Random", table]["Info4", vector] = randvec(0, 255)
-Themes["Random", table]["Goal", vector] = randvec(0, 255)
-Themes["Random", table]["Bar", vector] = randvec(0, 255)
-Themes["Random", table]["BarOutline", vector] = randvec(0, 255)
-Themes["Random", table]["Goal2", vector] = randvec(0, 255)
-Themes["Random", table]["GraphBox", vector] = randvec(0, 255)
-Themes["Random", table]["GraphBoxOutline", vector] =randvec(0, 255)
-Themes["Random", table]["Graph", vector] = randvec(0, 255)
-
-
-
+initThemes()
