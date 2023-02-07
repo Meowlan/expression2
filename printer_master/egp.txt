@@ -24,7 +24,7 @@ function wirelink:setupEgp() {
     EGP:egpColor(2, 127,127,127,255)
     
     EGP:egpRoundedBoxOutline(3,vec2(256,0),vec2(512,128))
-    EGP:egpColor(3, getThemeVec("Font"))
+    EGP:egpColor(3, getThemeVec("FontColor"))
     
     EGP:egpText(4, "Owner:" + entity():owner():name()+" | Print Master ", vec2(15,15))
     EGP:egpColor(4, 30,30,30, 255)
@@ -33,7 +33,7 @@ function wirelink:setupEgp() {
     EGP:egpRoundedBox(5,vec2(256,128+12),vec2(512,128))
 
     EGP:egpRoundedBoxOutline(6,vec2(256,128+12),vec2(512,128))
-    EGP:egpColor(6, getThemeVec("Font"))
+    EGP:egpColor(6, getThemeVec("FontColor"))
 
     EGP:egpAlign(7, 0)
     
@@ -64,18 +64,18 @@ function wirelink:setupEgp() {
     EGP:egpColor(12, 30,30,30, 255)
     
     EGP:egpBoxOutline(13,vec2(256+64+12,220),vec2(256+64+32,20))
-    EGP:egpColor(13, getThemeVec("Font"))
+    EGP:egpColor(13, getThemeVec("FontColor"))
     
     EGP:egpText(14, "quack", vec2(8,235))
     EGP:egpColor(14, 30,30,30, 255)
     EGP:egpFont(14,  getThemeString("Font"),   getThemeNumber("FontSize"))
     
     EGP:egpBoxOutline(15,vec2(512,512),vec2(0,0))
-    EGP:egpColor(15, getThemeVec("Font"))
+    EGP:egpColor(15, getThemeVec("FontColor"))
     EGP:egpRoundedBox(15, vec2(256,256+143),vec2(512,192+68))
 
     EGP:egpRoundedBoxOutline(16,vec2(256,256+143),vec2(512,192+68))
-    EGP:egpColor(16, getThemeVec("Font"))
+    EGP:egpColor(16, getThemeVec("FontColor"))
 }
 
 function wirelink:updateEgp(...Vargs:array) {

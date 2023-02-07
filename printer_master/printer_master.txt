@@ -1,4 +1,4 @@
-@name Print Master
+@name Printer Master
 
 #[ Todo:
     -Chat command for removing and adding printers
@@ -28,7 +28,7 @@ if (first() | duped()) {
     #include "printer_master/themes"
     #include "printer_master/language"
     
-    Prefix = "%"
+    Prefix = "!"
     Version = "v1.0"
     Goal = 100000000
     
@@ -101,31 +101,30 @@ function handleMessage(Ent:entity, Message:string, N:number) {
     local Args = Message:explode(" ")
 
     if (Args[1, string] == "theme") {
-        if (!Themes:exists(Args[2, string])) {  #Check  if theme exists
-            print(format("Theme does %s not exist", Args[2, string]))
+        if (setTheme(Args[2, string])) {  #Check  if theme exists
+            EGP:setupEgp()
+            print(format(getLanguageString("SetThemeSuccess"), SelectedTheme))
+            return
+        } else { 
+            print(format(getLanguageString("SetThemeError"), Args[2, string]))
             return
         }
-
-        SelectedTheme = Args[2, string]
-        EGP:setupEgp()
-        print(format("Selected %s as a theme.", SelectedTheme))
-    } elseif (Args[1, string] == "language") {
-        if (!Languages:exists(Args[2, string])) {  #Check  if theme exists
-            print(format("Language does %s not exist", Args[2, string]))
-            
+    } elseif (Args[1, string] == "theme") {
+        if (setLanguage(Args[2, string])) {  #Check  if theme exists
+            EGP:setupEgp()
+            print(format(getLanguageString("SetLanguageSuccess"), SelectedTheme))
+            return
+        } else { 
+            print(format(getLanguageString("SetLanguageError"), Args[2, string]))
             return
         }
-
-        SelectedLanguage = Args[2, string]
-        EGP:setupEgp()
-        print(format("Selected %s as a language.", SelectedLanguage))
     } elseif (Args[1, string] == "add") { #Adds printer to list
         local AimEntity = owner():aimEntity()
         if (AimEntity:isValid() & AimEntity:type():find("boost_printer")) {
             Printers[AimEntity:id(), entity] = AimEntity
             
             PrinterCount++
-            print(format("Printer added. Now managing %d printers!", Printers:count()))
+            print(format(getLanguageString("PrinterAdded"), Printers:count()))
         }
     } elseif (Args[1, string] == "remove") {#Removes printer from list
         local AimEntity = owner():aimEntity()
@@ -133,7 +132,7 @@ function handleMessage(Ent:entity, Message:string, N:number) {
             Printers:removeEntity(AimEntity:id())
 
             PrinterCount--
-            print(format("Printer removed. Now managing %d printers!", Printers:count()))
+            print(format(getLanguageString("PrinterRemoved"), Printers:count()))
         }
     } elseif (Args[1, string] == "reset") { #Resets the chip
         reset()
@@ -167,9 +166,7 @@ event tick(){
         
         PrinterCount++
     }
-    
-    setName(format("Print Master\n%d printer connected.", PrinterCount))
-    
+ 
     local UserTargetPos = UserTarget:massCenter()
     local UserTargetAng = UserTarget:eyeAngles()
     
