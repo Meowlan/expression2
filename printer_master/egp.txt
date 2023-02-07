@@ -15,67 +15,66 @@ History = array()
 function wirelink:setupEgp() {
     local EGP = This
     EGP:egpClear()
-    
-    Background = 1
-    EGP:egpRoundedBox(Background,vec2(0,0),vec2(1024,1024))
-    EGP:egpColor(Background, getThemeVec("Background"))
+
+    EGP:egpBox(1 ,vec2(256, 256),vec2(512,512))
+    EGP:egpColor(1 , getThemeVec("Background"))
     
     EGP:egpRoundedBox(2,vec2(256,0),vec2(512,128))
-    EGP:egpColor(2, 127,127,127,255)
+    EGP:egpColor(2, getThemeVec("TopBar"))
     
     EGP:egpRoundedBoxOutline(3,vec2(256,0),vec2(512,128))
-    EGP:egpColor(3, getThemeVec("FontColor"))
+    EGP:egpColor(3, getThemeVec("TopBarOutline"))
     
     EGP:egpText(4, "Owner:" + entity():owner():name()+" | Print Master ", vec2(15,15))
-    EGP:egpColor(4, 30,30,30, 255)
-    EGP:egpFont(4, getThemeString("Font"), 40)
+    EGP:egpColor(4, getThemeVec("TitleColor"))
+    EGP:egpFont(4, getThemeString("TitleFont"), getThemeNumber("TitleSize"))
 
     EGP:egpRoundedBox(5,vec2(256,128+12),vec2(512,128))
 
     EGP:egpRoundedBoxOutline(6,vec2(256,128+12),vec2(512,128))
-    EGP:egpColor(6, getThemeVec("FontColor"))
+    EGP:egpColor(6, getThemeVec("InfoColor"))
 
     EGP:egpAlign(7, 0)
     
     EGP:egpText(7, "quack", vec2(8,80)) #ignore the quacks they are just placeholders
-    EGP:egpColor(7, 30,30,30, 255)
-    EGP:egpFont(7, getThemeString("Font"),  getThemeNumber("FontSize"))
+    EGP:egpColor(7, getThemeVec("InfoColor"))
+    EGP:egpFont(7, getThemeString("InfoFont"),  getThemeNumber("InfoSize"))
     
     EGP:egpText(8, "quack", vec2(8,110))
     EGP:egpAlign(8, 0)
-    EGP:egpColor(8, 30,30,30, 255)
-    EGP:egpFont(8, getThemeString("Font"),  getThemeNumber("FontSize"))
+    EGP:egpColor(8, getThemeVec("InfoColor"))
+    EGP:egpFont(8, getThemeString("InfoFont"),  getThemeNumber("InfoSize"))
     
     EGP:egpText(9, "quack", vec2(8,140))
     EGP:egpAlign(9, 0)
-    EGP:egpColor(9, 30,30,30, 255)
-    EGP:egpFont(9, getThemeString("Font"),  getThemeNumber("FontSize"))
+    EGP:egpColor(9, getThemeVec("InfoColor"))
+    EGP:egpFont(9, getThemeString("InfoFont"),  getThemeNumber("InfoSize"))
     
     EGP:egpText(10, "quack", vec2(8,170))
     EGP:egpAlign(10, 0)
-    EGP:egpColor(10, 30,30,30, 255)
-    EGP:egpFont(10, getThemeString("Font"),  getThemeNumber("FontSize"))
+    EGP:egpColor(10, getThemeVec("InfoColor"))
+    EGP:egpFont(10, getThemeString("InfoFont"),  getThemeNumber("InfoSize"))
     
     EGP:egpText(11, "quack", vec2(8,205))
-    EGP:egpColor(11, 30,30,30, 255)
-    EGP:egpFont(11, getThemeString("Font"),  getThemeNumber("FontSize"))
+    EGP:egpColor(11, getThemeVec("InfoColor"))
+    EGP:egpFont(11, getThemeString("InfoFont"),  getThemeNumber("InfoSize"))
     
     EGP:egpBox(12, vec2(220, 332), vec2(0, 20))    
-    EGP:egpColor(12, 30,30,30, 255)
+    EGP:egpColor(12, getThemeVec("InfoColor"))
     
     EGP:egpBoxOutline(13,vec2(256+64+12,220),vec2(256+64+32,20))
-    EGP:egpColor(13, getThemeVec("FontColor"))
+    EGP:egpColor(13, getThemeVec("InfoColor"))
     
     EGP:egpText(14, "quack", vec2(8,235))
-    EGP:egpColor(14, 30,30,30, 255)
-    EGP:egpFont(14,  getThemeString("Font"),   getThemeNumber("FontSize"))
+    EGP:egpColor(14, getThemeVec("InfoColor"))
+    EGP:egpFont(14,  getThemeString("InfoFont"),   getThemeNumber("InfoSize"))
     
     EGP:egpBoxOutline(15,vec2(512,512),vec2(0,0))
-    EGP:egpColor(15, getThemeVec("FontColor"))
+    EGP:egpColor(15, getThemeVec("InfoColor"))
     EGP:egpRoundedBox(15, vec2(256,256+143),vec2(512,192+68))
 
     EGP:egpRoundedBoxOutline(16,vec2(256,256+143),vec2(512,192+68))
-    EGP:egpColor(16, getThemeVec("FontColor"))
+    EGP:egpColor(16, getThemeVec("InfoColor"))
 }
 
 function wirelink:updateEgp(...Vargs:array) {
@@ -101,7 +100,7 @@ function wirelink:updateEgp(...Vargs:array) {
     local Pixels = 352 
     local Scale = GoalPercent*Pixels
     local Pos = vec2(332 + (Scale/2) - Pixels/2 , 220) 
-    EGP:egpBox(12, Pos, vec2(Scale, 20))    
+    EGP:egpBox(12, Pos, vec2(Scale, 19))    
     
     if (curtime() % 60 == 0) {
         EGP:displayHistory(50, CPM, History, 50, vec(0))
