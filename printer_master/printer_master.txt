@@ -2,63 +2,44 @@
 
 #[ Todo:
     -Store printers in a global variable
-    -Config file
 ]#
 
 @inputs User:wirelink Freezer:wirelink EGP:wirelink
 
-@persist UserEnt:entity Printers:array
-@persist UserSpeed UserMargin UserAngSped
-@persist Speed Margin AngSpeed AngMargin
+@persist  Printers:array
 
-@persist MinMoney MinCooling MinBattery UserTarget:entity
+@persist UserTarget:entity UserEnt:entity
 @persist MaintenanceState Maintenance:entity MaintenancePos:vector MaintenanceAng:angle
 
-@persist Total StartTime Goal
-
-@persist Prefix:string
-@persist Version:string
+@persist Total StartTime
 
 if (first() | duped()) {
     #include "printer_master/lib"
     #include "printer_master/egp"
     #include "printer_master/themes"
     #include "printer_master/language"
-    
-    Prefix = "!"
-    Version = "v1.0"
-    Goal = 100000000
-    
-    MinMoney = 200
-    MinBattery = 10
-    MinCooling = 10
-    
-    Speed = 10
-    Margin = 2
-    AngMargin = 5
-    AngSpeed = 250
-    
-    UserSpeed = 15
-    UserMargin = 2
-    UserAngSped = 250
-    
+    #include "printer_master/config"
+
+    Printers = array()
+
     StartTime = curtime()
+
     UserEnt = User:entity()
     UserEnt:setMass(500)
-    Printers = array()
     UserTarget = noentity()
+
     Maintenance = noentity()
     MaintenancePos = vec()
     MaintenanceAng = ang()
+
     Total = 0
-    
     MaintenanceState = 0
 
     EGP:setupEgp()
     
     User:setNumber("Fade", 1)
 
-    print(format(getLanguageString("WelcomeMessage"), Version))
+    print(format(getLanguageString("WelcomeMessage"), "V1"))
 }
 
 if (->User | ~User) {
@@ -70,7 +51,7 @@ if (->EGP | ~EGP) {
 }
 
 function number compare(TargetPos:vector, TargetAng:angle) {
-    return (compareVectors(TargetPos, Maintenance:pos(), Margin) & compareAngles(TargetAng, Maintenance:eyeAngles(), AngMargin))    
+    return (compareVectors(TargetPos, Maintenance:pos(), Config["Margin", number]) & compareAngles(TargetAng, Maintenance:eyeAngles(), Config["AngMargin", number]))    
 }
 
 function handleMessage(Ent:entity, Message:string, N:number) {
@@ -78,7 +59,7 @@ function handleMessage(Ent:entity, Message:string, N:number) {
     
     if (Ent != owner()) { return }
 
-    if (Message:sub(1, 1) == Prefix) { 
+    if (Message:sub(1, 1) == Config["ChatPrefix", string]) { 
         Message = Message:sub(2)
     } else { 
         return 
@@ -108,24 +89,28 @@ function handleMessage(Ent:entity, Message:string, N:number) {
         }
     } elseif (Args[1, string] == "add") { #Adds printer to list
         local AimEntity = owner():aimEntity()
-        if (AimEntity:isValid() & AimEntity:type():find("boost_printer")) {
+        if (AimEntity:isValid() & AimEntity:type():find("boost_printer") & !Printers:exists(AimEntity:id())) {
             Printers[AimEntity:id(), entity] = AimEntity
             
-            PrinterCount++
-            print(format(getLanguageString("PrinterAdded"), Printers:count()))
+            print(format(getLanguageString("PrinterAdded")))
         }
     } elseif (Args[1, string] == "remove") {#Removes printer from list
         local AimEntity = owner():aimEntity()
-        if (AimEntity:isValid() & AimEntity:type():find("boost_printer")) {
+        if (AimEntity:isValid() & AimEntity:type():find("boost_printer") & Printers:exists(AimEntity:id())) {
             Printers:removeEntity(AimEntity:id())
 
-            PrinterCount--
-            print(format(getLanguageString("PrinterRemoved"), Printers:count()))
+            print(format(getLanguageString("PrinterRemoved")))
         }
     } elseif (Args[1, string] == "reset") { #Resets the chip
         reset()
     } elseif (Args[1, string] == "clear") { #clears the printers list
         Printers:clear()
+    } elseif (Args[1, string] == "config") { #clears the printers list
+        if (Args[2, string] == "number") {
+            configNumber(Args[3, string], Args[4, string]:toNumber())
+        } elseif (Args[2, string] == "string") {
+            configString(Args[3, string], Args[4, string])
+        }
     }
 }
 
@@ -141,12 +126,12 @@ event tick(){
         if (!PrinterEnt:isValid()) {Printers:remove(K) continue}
         local Printer = PrinterEnt:wirelink()
         
-        if (Printer:number("MoneyStored") >= MinMoney & !UserTarget:isValid()) {
+        if (Printer:number("MoneyStored") >= Config["MaxMoney", number] & !UserTarget:isValid()) {
             Total += Printer:number("MoneyStored")
             UserTarget = PrinterEnt
         }
         
-        if ((Printer:number("Battery") <= MinBattery | Printer:number("Coolant") <= MinCooling) & !Maintenance:isValid()) {
+        if ((Printer:number("Battery") <= Config["MinBattery", number] | Printer:number("Coolant") <= Config["MinCooling", number]) & !Maintenance:isValid()) {
             MaintenancePos = PrinterEnt:massCenter()
             MaintenanceAng = PrinterEnt:eyeAngles()
             Maintenance = PrinterEnt
@@ -163,7 +148,7 @@ event tick(){
         UserTargetAng = entity():eyeAngles()
     } 
     
-    if (compareVectors(UserTargetPos, UserEnt:pos(), UserMargin) & UserTarget:isValid()) {
+    if (compareVectors(UserTargetPos, UserEnt:pos(), Config["UserMargin", number]) & UserTarget:isValid()) {
         User:setNumber("Fire", 1)
         UserTarget = noentity()
     } else {
@@ -183,9 +168,9 @@ event tick(){
             TargetAng = entity():eyeAngles()
             
             local Flag = owner():aimEntity() == Maintenance
-            if (Maintenance:wirelink():number("Battery") < 100) {
+            if (Maintenance:wirelink():number("Battery") < Config["MaxBattery", number]) {
                 if (Flag) {concmd("darkrp buybattery")}
-            } elseif (Maintenance:wirelink():number("Coolant") < 100) {
+            } elseif (Maintenance:wirelink():number("Coolant") < Config["MaxCooling", number]) {
                 if (Flag) {concmd("darkrp buycoolingcell")}
             } else {
                 MaintenanceState++
@@ -206,16 +191,16 @@ event tick(){
                 MaintenanceState = 0
             }
         }
-        Maintenance:applyForce(((TargetPos - Maintenance:pos()) * Speed - Maintenance:vel()) * Maintenance:mass())
-        Maintenance:applyAngForce((Maintenance:toLocal(TargetAng)*AngSpeed - Maintenance:angVel()*(AngSpeed/10))*shiftL(ang(Maintenance:inertia())))
+        Maintenance:applyForce(((TargetPos - Maintenance:pos()) * Config["Speed", number] - Maintenance:vel()) * Maintenance:mass())
+        Maintenance:applyAngForce((Maintenance:toLocal(TargetAng)*Config["AngSpeed", number] - Maintenance:angVel()*(Config["AngSpeed", number]/10))*shiftL(ang(Maintenance:inertia())))
     } elseif (MaintenanceState > 0) {
         MaintenanceState = 0
     }
     
-    UserEnt:applyForce(((UserTargetPos - UserEnt:pos()) * UserSpeed - UserEnt:vel()) * UserEnt:mass())
-    UserEnt:applyAngForce((UserEnt:toLocal(UserTargetAng)* UserAngSped - UserEnt:angVel()*(UserAngSped/10))*shiftL(ang(UserEnt:inertia())))
+    UserEnt:applyForce(((UserTargetPos - UserEnt:pos()) * Config["UserSpeed", number] - UserEnt:vel()) * UserEnt:mass())
+    UserEnt:applyAngForce((UserEnt:toLocal(UserTargetAng)* Config["UserAngSped", number] - UserEnt:angVel()*(Config["UserAngSped", number]/10))*shiftL(ang(UserEnt:inertia())))
     
-    EGP:updateEgp(StartTime, Total, Goal, PrinterCount)
+    EGP:updateEgp(StartTime, Total, Config["Goal", number], PrinterCount)
 }
 
 event removed(N:number) {

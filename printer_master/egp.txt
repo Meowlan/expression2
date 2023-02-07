@@ -6,6 +6,35 @@
 
 History = array()
 
+function wirelink:displayHistory(Index, Value, History:array, MaxHistory, Color:vector) {
+    if (History:count() >= MaxHistory) {
+        History:shift()
+    }
+
+    local HistoryMax = History:max()
+    local ScaledHistory = array()
+
+    foreach(K, V:number = History) {
+        ScaledHistory:pushNumber(clamp(V/HistoryMax, 0, 1))
+    }
+
+    History:pushNumber(Value)
+
+    local X = 0
+    local Y = 0
+    local Height = 246
+    local Width = 512
+    local StartY = 512
+    local StartX = 0
+
+    foreach(I, V:number = History) {
+        Y = StartY - V * Height
+        X = StartX + (Width / MaxHistory) * I
+        This:egpBox(Index + I, vec2(X, Y), vec2(4, 4))
+        This:egpColor(Index + I, Color)
+    }
+}
+
 function wirelink:setupEgp() {
     local EGP = This
     EGP:egpClear()

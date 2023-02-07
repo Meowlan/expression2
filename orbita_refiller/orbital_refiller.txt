@@ -1,0 +1,200 @@
+@name Orbital Refiller
+
+@inputs User:wirelink
+
+@persist Entities:array Wanted:entity WantedID EntityData:table
+
+@persist UserTarget:entity
+@persist Speed AngSpeed Spring Damping PrevTime Range MaxRange MaxCoolant MaxBattery MinCoolant MinBattery Total Margin MaxMoney OffsetPos:vector
+
+if (first() | duped()) {    
+    Entities = array()
+    EntityData = table()
+    Wanted = noentity()
+    UserTarget = noentity()
+
+    #[ Config ]#
+    Range = 100
+    MaxRange = 250
+    MaxMoney = 100
+    MaxCoolant = 100
+    MaxBattery = 100
+    MinCoolant = 10
+    MinBattery = 10
+    Margin = 2
+    OffsetPos = vec(0, 0, 30)
+    Damping = 0.25
+    Spring = 0.1
+    Speed = 20
+    AngSpeed = 250
+    #[ End ]#
+
+    PrevTime = 0
+    WantedID = 0
+    Total = 0
+
+    User:entity():setMass(500)
+    holoCreate(1)
+    #holoModel(1, "models/props_c17/consolebox01a.mdl")
+    holoScaleUnits(1, vec(33.73, 31.86, 11.72))
+    holoColor(1, vec4(0, 255, 0, 100))
+}
+
+event chat(E:entity, S:string, N:number) {
+    N=N
+local AimEntity = owner():aimEntity()
+    
+    if (E == owner() & AimEntity:isValid()) {
+        if (S == ";add" ) {
+            hideChat(1)
+            AimEntity:setMass(250)
+            Entities:pushEntity(AimEntity)
+            
+            local Data = table()
+            
+            Data["Angle", number] = 0
+            Data["Velocity", number] = 0
+            Data["CurAngle", number] = 0
+            
+            EntityData:pushTable(Data)
+            
+            print("Entity added.")
+        }
+    }
+}
+
+function number angleBetweenVectors(V1:vector, V2:vector) {
+    return (-toDeg(atan2(comp(V2:y() - V1:y(), V2:x() - V1:x())))) - 180
+}
+
+function number compareVectors(Vec1:vector, Vec2:vector, Margin:number) {
+    local X = abs(Vec1:x() - Vec2:x())
+    local Y = abs(Vec1:y() - Vec2:y())
+    local Z = abs(Vec1:z() - Vec2:z())
+    
+    return vec(X, Y, Z):length() < Margin
+}
+
+event tick() {
+    local UserEnt = User:entity()
+    local CurTime = systime()
+    local DeltaTime = (CurTime - PrevTime) * 20
+    PrevTime = CurTime
+    
+    local Count = Entities:count()
+    local AngleIncrement = 360 / Count
+    
+    foreach(K:number, Ent:entity = Entities) {
+        if (!Ent:isValid()) {Entities:remove(K)}
+        
+        local EntityCoune = Entities:count()
+        if (Wanted:isValid() & Ent == Wanted) {WantedID = (EntityCoune-K) + 1 % EntityCoune}
+        
+        local Link = Ent:wirelink()
+        
+        if (!Wanted:isValid()) {
+            if(Link:number("Battery") < MinBattery | Link:number("Coolant") < MinCoolant) {
+                Wanted = Ent    
+            }
+        }
+        
+        local Offset = 180
+        
+        if (!Wanted:isValid()) {
+            Offset += (CurTime*10)    
+        } else {
+            Offset += (angleBetweenVectors(entity():pos() + OffsetPos, owner():pos()) - 90) + (AngleIncrement*WantedID)
+        }
+        
+        Offset = Offset % 360
+        
+        EntityData[K,table]["Angle", number] = Offset
+        local CurOffset = EntityData[K,table]["CurAngle", number] % 360
+        
+        local Velocity = EntityData[K,table]["Velocity", number]
+        
+        local Distance = Offset - CurOffset
+        if (Distance > 180) {
+            Distance = Distance - 360
+        } elseif (Distance < -180) {
+            Distance = Distance + 360
+        }
+        
+        local Force = Distance * Spring
+        
+        Velocity = (Velocity + Force) * Damping
+        
+        EntityData[K,table]["CurAngle", number] = CurOffset + (Velocity*DeltaTime)
+        EntityData[K,table]["Velocity", number] = Velocity
+        
+        local Angle = ((AngleIncrement * (K-1)) + CurOffset) + 180 % 360
+        local Radius = Range
+        local DistanceToPlayer = clamp(owner():pos():distance(entity():pos() + OffsetPos), 0, MaxRange)
+        
+        if (Wanted == Ent) {
+            if (DistanceToPlayer < Radius) {
+                Radius = DistanceToPlayer+40    
+            } else {
+                Radius =  DistanceToPlayer-50
+            }
+            
+            if (owner():aimEntity() == Wanted) {
+                if (Link:number("Battery") < MaxBattery) {
+                    concmd("darkrp buybattery")
+                } elseif (Link:number("Coolant") < MaxCoolant) {
+                    concmd("darkrp buycoolingcell")
+                } else {
+                    Wanted = noentity()
+                }
+            }
+        }
+        
+        local TargetPos = entity():pos() + OffsetPos + vec(cos(Angle) * Radius, sin(Angle) * Radius, 0)
+        local TargetAng = ang(180, Angle, 90)
+        
+        Ent:applyForce(((TargetPos - Ent:massCenter()) * Speed - Ent:vel()) * Ent:mass() * DeltaTime)
+        Ent:applyAngForce((Ent:toLocal(TargetAng)* AngSpeed - Ent:angVel()*(AngSpeed/10))*shiftL(ang(Ent:inertia())) * DeltaTime)
+
+        if (Link:number("MoneyStored") >= MaxMoney & !UserTarget:isValid()) {
+            Total += Link:number("MoneyStored")
+            UserTarget = Ent
+        }
+        
+    }
+    
+    local UserTargetPos = UserTarget:massCenter()
+    
+    if (!UserTarget:isValid()) {
+        UserTargetPos = entity():pos() + OffsetPos
+    } 
+
+    if (compareVectors(UserTargetPos, UserEnt:pos(), Margin) & UserTarget:isValid()) {
+        User:setNumber("Fire", 1)
+        UserTarget = noentity()
+    } else {
+        User:setNumber("Fire", 0)
+    }
+
+    UserEnt:applyForce(((UserTargetPos - UserEnt:pos()) * Speed - UserEnt:vel()) * UserEnt:mass())
+    UserEnt:applyAngForce((UserEnt:toLocal(ang())* AngSpeed - UserEnt:angVel()*(AngSpeed/10))*shiftL(ang(UserEnt:inertia())))
+    
+    local Radius = Range
+    local Distance = clamp(owner():pos():distance(entity():pos() + OffsetPos), 0, MaxRange)
+
+    if (Distance < Radius) {
+        Radius = Distance+35
+    } else {
+        Radius =  Distance-50
+    }
+
+    local HoloAng = ((angleBetweenVectors(entity():pos() + OffsetPos, owner():pos())) - 90) % 360
+    
+    local HoloPos = entity():pos() + OffsetPos + vec(cos(HoloAng) * Radius, sin(HoloAng) * Radius, 0)
+    
+    holoPos(1, HoloPos)
+    holoAng(1, ang(180, HoloAng, 90))
+    
+    setName(format("A: %0.2f DT: %0.2f P: %d HA: %0.2f", AngleIncrement, DeltaTime, Entities:count(), HoloAng))
+}
+
+

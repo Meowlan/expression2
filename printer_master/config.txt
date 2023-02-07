@@ -1,0 +1,35 @@
+@name Config
+
+@persist Config:table
+
+Config = table()
+
+function configString(K:string, V:string) {
+    Config[K, string] = V
+}
+
+function configNumber(K:string, V:number) {
+    Config[K, number] = V
+}
+
+function configVector(K:string, V:vector) {
+    Config[K, vector] = V
+}
+
+Config["ChatPrefix", string] = "!" 
+Config["Goal", number] = 100000000
+
+Config["MaxMoney", number] = 200
+Config["MinBattery", number] = 10
+Config["MinCooling", number] = 10
+Config["MaxBattery", number] = 100
+Config["MaxCooling",  number] = 100
+
+Config["Speed", number] = 10
+Config["Margin", number] = 2
+Config["AngMargin", number] = 5
+Config["AngSpeed", number] = 250
+
+Config["UserSpeed", number] = 15
+Config["UserMargin", number] = 2
+Config["UserAngSped", number] = 250
