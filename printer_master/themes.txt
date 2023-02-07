@@ -28,38 +28,34 @@ function number setTheme(Theme:string) {
         return 0
     }
 }
+
 #gonna put into e2 ok
 Themes["White", table] = table()
-Themes["White", table]["Background", vector] = vec(255)   
-Themes["White", table]["TopBar", vector] = vec(255)
-Themes["White", table]["TopBarOutline", vector] = vec(127)
 
-Themes["White", table]["TitleFont", string] = ""
-Themes["White", table]["TitleSize", number] = 40
-Themes["White", table]["TitleColor", vector] = vec(30)    
+Themes["Randon", table] = table()
+Themes["Random", table]["TitleFont", string] = ""
+Themes["Random", table]["TitleSize", number] = 40
 
-Themes["White", table]["InfoFont", string] = ""               
-Themes["White", table]["InfoSize", number] = 30           
-Themes["White", table]["InfoColor", vector] = vec(30)    
+Themes["Random", table]["InfoFont", string] = ""               
+Themes["Random", table]["InfoSize", number] = 30           
 
-Themes["White", table]["Foreground", vector] = vec(255)   
+Themes["Random", table]["Background", vector] = randvec(0, 255)
+Themes["Random", table]["TopBar", vector] = randvec(0, 255)
+Themes["Random", table]["TopBarOutline", vector] = randvec(0, 255)
+Themes["Random", table]["Title", vector] = randvec(0, 255)
+Themes["Random", table]["InfoBox", vector] = randvec(0, 255)
+Themes["Random", table]["InfoBoxOutline", vector] = randvec(0, 255)
+Themes["Random", table]["Info1", vector] = randvec(0, 255)
+Themes["Random", table]["Info2", vector] = randvec(0, 255)
+Themes["Random", table]["Info3", vector] = randvec(0, 255)
+Themes["Random", table]["Info4", vector] = randvec(0, 255)
+Themes["Random", table]["Goal", vector] = randvec(0, 255)
+Themes["Random", table]["Bar", vector] = randvec(0, 255)
+Themes["Random", table]["BarOutline", vector] = randvec(0, 255)
+Themes["Random", table]["Goal2", vector] = randvec(0, 255)
+Themes["Random", table]["GraphBox", vector] = randvec(0, 255)
+Themes["Random", table]["GraphBoxOutline", vector] =randvec(0, 255)
+Themes["Random", table]["Graph", vector] = randvec(0, 255)
 
-
-
-
-Themes["Light", table] = table()
-Themes["Light", table]["Background", vector] = vec(255/2) 
-Themes["Light", table]["Font", string] = ""               
-Themes["Light", table]["FontSize", number] = 30           
-Themes["Light", table]["FontColor", vector] = vec(255/2)  
-Themes["Light", table]["Foreground", vector] = vec(255/2) 
-
-Themes["Dark", table] = table()
-Themes["Dark", table]["Background", vector] = vec(0)     
-Themes["Dark", table]["TopBar", vector] = vec(34)     
-Themes["Dark", table]["Font", string] = ""               
-Themes["Dark", table]["FontSize", number] = 30           
-Themes["Dark", table]["FontColor", vector] = vec(0)      
-Themes["Dark", table]["Foreground", vector] = vec(0)     
 
 

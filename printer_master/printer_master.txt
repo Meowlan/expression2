@@ -76,16 +76,6 @@ function number compare(TargetPos:vector, TargetAng:angle) {
     return (compareVectors(TargetPos, Maintenance:pos(), Margin) & compareAngles(TargetAng, Maintenance:eyeAngles(), AngMargin))    
 }
 
-event keyPressed(E:entity, S:string, N:number, S2:string) {
-    S2=S2
-    
-    local AimEntity = owner():aimEntity()
-    if (E == owner() & S == "v" & N & AimEntity:isValid() & AimEntity:type():find("boost_printer")) {
-        Printers[AimEntity:id(), entity] = AimEntity
-        print(format(getLanguageString("WelcomeMessage")))
-    }
-}
-
 function handleMessage(Ent:entity, Message:string, N:number) {
     N=N
     
