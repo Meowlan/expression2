@@ -1,7 +1,0 @@
-@name Meow's QoL config
-
-@persist Config:table
-@persist True False
-True = 1 False = 0
-
-Config["AutoUpdate", number] = True
