@@ -26,14 +26,14 @@ function string timeConversion(Seconds) {
     return format("%dd %dh %dm %ds", Days, Hours, Minutes, Seconds)
 }
 
-function wirelink:displayHistory(Index, Value, MaxValue, History:array, MaxHistory, Color:vector) {
+function wirelink:displayHistory(Index, Value, History:array, MaxHistory, Color:vector) {
     if (History:count() >= MaxHistory) {
         History:shift()
     }
-    
-    Value = clamp(Value/MaxValue, 0, 1)
 
     History:pushNumber(Value)
+    
+    Value = clamp(Value/History:max(), 0, 1)
     
     local X = 0
     local Y = 0

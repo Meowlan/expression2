@@ -1,21 +1,31 @@
 @persist History:array
 
-#include "printerMaster/themes"
-#include "printerMaster/lib"
+#include "printer_master/themes"
+#include "printer_master/lib"
+
+#[ Todo
+-Set all the hologram indexes to variable
+
+
+
+]#
 
 History = array()
+SelectedTheme = "White"
 
 function wirelink:setupEgp() {
     local EGP = This
     EGP:egpClear()
     
-    EGP:egpRoundedBox(1,vec2(0,0),vec2(1024,1024))
-    EGP:egpColor(1,64,64,64,255)
+    Background = 1
+    EGP:egpRoundedBox(Background,vec2(0,0),vec2(1024,1024))
+    EGP:egpColor(Background, getElement("Background"))
+    
     EGP:egpRoundedBox(2,vec2(256,0),vec2(512,128))
     EGP:egpColor(2, 127,127,127,255)
     
     EGP:egpRoundedBoxOutline(3,vec2(256,0),vec2(512,128))
-    EGP:egpColor(3, 0,0,0,255)
+    EGP:egpColor(3, getElement("Font"))
     
     EGP:egpText(4, "Owner:" + entity():owner():name()+" | Print Master ", vec2(15,15))
     EGP:egpColor(4, 30,30,30, 255)
@@ -24,7 +34,7 @@ function wirelink:setupEgp() {
     EGP:egpRoundedBox(5,vec2(256,128+12),vec2(512,128))
     EGP:egpRoundedBoxOutline(6,vec2(256,128+12),vec2(512,128))
     
-    EGP:egpColor(6, 0,0,0,255)
+    EGP:egpColor(6, getElement("Font"))
     EGP:egpAlign(7, 0)
     
     EGP:egpText(7, "quack", vec2(8,80))
@@ -54,18 +64,18 @@ function wirelink:setupEgp() {
     EGP:egpColor(12, 30,30,30, 255)
     
     EGP:egpBoxOutline(13,vec2(256+64+12,220),vec2(256+64+32,20))
-    EGP:egpColor(13, 0,0,0,255)
+    EGP:egpColor(13, getElement("Font"))
     
     EGP:egpText(14, "quack", vec2(8,235))
     EGP:egpColor(14, 30,30,30, 255)
     EGP:egpFont(14, "", 30)
     
     EGP:egpBoxOutline(15,vec2(512,512),vec2(0,0))
-    EGP:egpColor(15,0,0,0, 255)
+    EGP:egpColor(15, getElement("Font"))
     
     EGP:egpRoundedBox(15, vec2(256,256+143),vec2(512,192+68))
     EGP:egpRoundedBoxOutline(16,vec2(256,256+143),vec2(512,192+68))
-    EGP:egpColor(16, 0,0,0, 255)
+    EGP:egpColor(16, getElement("Font"))
 }
 
 function wirelink:updateEgp(...Vargs:array) {
@@ -94,6 +104,6 @@ function wirelink:updateEgp(...Vargs:array) {
     EGP:egpBox(12, Pos, vec2(Scale, 20))    
     
     if (curtime() % 60 == 0) {
-        EGP:displayHistory(50, CPM, 100000, History, 50, vec(0))
+        EGP:displayHistory(50, CPM, History, 50, vec(0))
     }
 }

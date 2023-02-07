@@ -1,4 +1,4 @@
-@name Printer Master
+@name Print Master
 
 #[ Todo:
 -Chat command for removing and adding printers
@@ -20,8 +20,8 @@
 @persist Total StartTime Goal
 
 if (first() | duped()) {
-    #include "lib"
-    #include "egp"
+    #include "printer_master/lib"
+    #include "printer_master/egp"
     
     Goal = 100000000
     
