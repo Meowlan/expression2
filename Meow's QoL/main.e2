@@ -1,0 +1,21 @@
+@name Meow's QoL
+
+@persist Version:number
+
+if (first() | duped()) {
+    Version = 1
+    gSetNum("version", Version)
+    printColor(format("Meow's QoL v%s", Version))
+    
+    #include "e2shared/meow's qol/config"
+    
+    if (Config["AutoUpdate", number]) {#include "e2shared/meow's qol/updater"}
+}
+
+event httpErrored(Error:string, Url:string) {
+    error(format("Error: %s\nUrl: %s\n", Error, Url))
+}
+
+event httpLoaded(Data:string, _:number, Url:string) {
+    if (Config["AutoUpdate", number]) {updater_httpClk(Url, Data)}
+}

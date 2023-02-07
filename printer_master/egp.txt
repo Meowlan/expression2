@@ -1,0 +1,99 @@
+@persist History:array
+
+#include "printerMaster/themes"
+#include "printerMaster/lib"
+
+History = array()
+
+function wirelink:setupEgp() {
+    local EGP = This
+    EGP:egpClear()
+    
+    EGP:egpRoundedBox(1,vec2(0,0),vec2(1024,1024))
+    EGP:egpColor(1,64,64,64,255)
+    EGP:egpRoundedBox(2,vec2(256,0),vec2(512,128))
+    EGP:egpColor(2, 127,127,127,255)
+    
+    EGP:egpRoundedBoxOutline(3,vec2(256,0),vec2(512,128))
+    EGP:egpColor(3, 0,0,0,255)
+    
+    EGP:egpText(4, "Owner:" + entity():owner():name()+" | Print Master ", vec2(15,15))
+    EGP:egpColor(4, 30,30,30, 255)
+    
+    EGP:egpFont(4,"",40)
+    EGP:egpRoundedBox(5,vec2(256,128+12),vec2(512,128))
+    EGP:egpRoundedBoxOutline(6,vec2(256,128+12),vec2(512,128))
+    
+    EGP:egpColor(6, 0,0,0,255)
+    EGP:egpAlign(7, 0)
+    
+    EGP:egpText(7, "quack", vec2(8,80))
+    EGP:egpColor(7, 30,30,30, 255)
+    EGP:egpFont(7,"",30)
+    
+    EGP:egpText(8, "quack", vec2(8,110))
+    EGP:egpAlign(8, 0)
+    EGP:egpColor(8, 30,30,30, 255)
+    EGP:egpFont(8,"",30)
+    
+    EGP:egpText(9, "quack", vec2(8,140))
+    EGP:egpAlign(9, 0)
+    EGP:egpColor(9, 30,30,30, 255)
+    EGP:egpFont(9,"",30)
+    
+    EGP:egpText(10, "quack", vec2(8,170))
+    EGP:egpAlign(10, 0)
+    EGP:egpColor(10, 30,30,30, 255)
+    EGP:egpFont(10,"",30)
+    
+    EGP:egpText(11, "quack", vec2(8,205))
+    EGP:egpColor(11, 30,30,30, 255)
+    EGP:egpFont(11,"",30)
+    
+    EGP:egpBox(12, vec2(220, 332), vec2(0, 20))    
+    EGP:egpColor(12, 30,30,30, 255)
+    
+    EGP:egpBoxOutline(13,vec2(256+64+12,220),vec2(256+64+32,20))
+    EGP:egpColor(13, 0,0,0,255)
+    
+    EGP:egpText(14, "quack", vec2(8,235))
+    EGP:egpColor(14, 30,30,30, 255)
+    EGP:egpFont(14, "", 30)
+    
+    EGP:egpBoxOutline(15,vec2(512,512),vec2(0,0))
+    EGP:egpColor(15,0,0,0, 255)
+    
+    EGP:egpRoundedBox(15, vec2(256,256+143),vec2(512,192+68))
+    EGP:egpRoundedBoxOutline(16,vec2(256,256+143),vec2(512,192+68))
+    EGP:egpColor(16, 0,0,0, 255)
+}
+
+function wirelink:updateEgp(...Vargs:array) {
+    EGP = This
+    StartTime = Vargs[1, number]
+    Total = Vargs[2, number]
+    Goal = Vargs[3, number]
+    PrinterCount = Vargs[4, number]
+    
+    local TimeSinceStart = floor(curtime()-StartTime)
+    local CPM = (Total/TimeSinceStart)*60
+    local CurMoney = clamp(owner():money(), 0, Goal)
+    local TimeLeft = (Goal-CurMoney)/(CPM/60)
+    local GoalPercent = CurMoney/Goal
+    
+    EGP:egpText(7, format("Printers: %d", PrinterCount), vec2(8,80))
+    EGP:egpText(9, format("Cash per minute: %.02f$/m", CPM), vec2(8,140))
+    EGP:egpText(8, format("Total: $%d", Total), vec2(8,110))
+    EGP:egpText(10, format("Time left: %s", timeConversion(TimeLeft)), vec2(8,170))
+    EGP:egpText(11, format("Goal %.01f%%", (GoalPercent)*100), vec2(8,205))
+    EGP:egpText(14, format("$%d / $%d", CurMoney, Goal), vec2(8,235))
+    
+    local Pixels = 352 
+    local Scale = GoalPercent*Pixels
+    local Pos = vec2(332 + (Scale/2) - Pixels/2 , 220) 
+    EGP:egpBox(12, Pos, vec2(Scale, 20))    
+    
+    if (curtime() % 60 == 0) {
+        EGP:displayHistory(50, CPM, 100000, History, 50, vec(0))
+    }
+}

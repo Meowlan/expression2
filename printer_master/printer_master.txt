@@ -1,0 +1,163 @@
+@name Printer Master
+
+#[ Todo:
+-Chat command for removing and adding printers
+-Store printers in a global variable
+-Themes
+]#
+
+
+
+@inputs User:wirelink Freezer:wirelink EGP:wirelink
+
+@persist UserEnt:entity Printers:array
+@persist UserSpeed UserMargin UserAngSped
+@persist Speed Margin AngSpeed AngMargin
+
+@persist MinMoney MinCooling MinBattery UserTarget:entity
+@persist MaintenanceState Maintenance:entity MaintenancePos:vector MaintenanceAng:angle
+
+@persist Total StartTime Goal
+
+if (first() | duped()) {
+    #include "lib"
+    #include "egp"
+    
+    Goal = 100000000
+    
+    MinMoney = 200
+    MinBattery = 10
+    MinCooling = 10
+    
+    Speed = 10
+    Margin = 2
+    AngMargin = 5
+    AngSpeed = 250
+    
+    UserSpeed = 15
+    UserMargin = 2
+    UserAngSped = 250
+    
+    StartTime = curtime()
+    UserEnt = User:entity()
+    UserEnt:setMass(500)
+    Printers = array()
+    UserTarget = noentity()
+    Maintenance = noentity()
+    MaintenancePos = vec()
+    MaintenanceAng = ang()
+    Total = 0
+    
+    MaintenanceState = 0
+
+    EGP:setupEgp()
+    
+    User:setNumber("Fade", 1)
+}
+
+function number compare(TargetPos:vector, TargetAng:angle) {
+    return (compareVectors(TargetPos, Maintenance:pos(), Margin) & compareAngles(TargetAng, Maintenance:eyeAngles(), AngMargin))    
+}
+
+event keyPressed(E:entity, S:string, N:number, S2:string) {
+    S2=S2
+    
+    local AimEntity = owner():aimEntity()
+    if (E == owner() & S == "v" & N & AimEntity:isValid() & AimEntity:type():find("boost_printer")) {
+        Printers[AimEntity:id(), entity] = AimEntity
+        print("Printer added.")
+    }
+}
+
+event tick(){
+    Freezer:setNumber("Activate", 0)
+    local PrinterCount = 0
+    
+    foreach(K, PrinterEnt:entity = Printers) {
+        if (!PrinterEnt:isValid()) {Printers:remove(K) continue}
+        local Printer = PrinterEnt:wirelink()
+        
+        if (Printer:number("MoneyStored") >= MinMoney & !UserTarget:isValid()) {
+            Total += Printer:number("MoneyStored")
+            UserTarget = PrinterEnt
+        }
+        
+        if ((Printer:number("Battery") <= MinBattery | Printer:number("Coolant") <= MinCooling) & !Maintenance:isValid()) {
+            MaintenancePos = PrinterEnt:massCenter()
+            MaintenanceAng = PrinterEnt:eyeAngles()
+            Maintenance = PrinterEnt
+        }
+        
+        PrinterCount++
+    }
+    
+    setName(format("Print Master\n%d printer connected.", PrinterCount))
+    
+    local UserTargetPos = UserTarget:massCenter()
+    local UserTargetAng = UserTarget:eyeAngles()
+    
+    if (!UserTarget:isValid()) {
+        UserTargetPos = entity():pos() + vec(0,0,15)
+        UserTargetAng = entity():eyeAngles()
+    } 
+    
+    if (compareVectors(UserTargetPos, UserEnt:pos(), UserMargin) & UserTarget:isValid()) {
+        User:setNumber("Fire", 1)
+        UserTarget = noentity()
+    } else {
+        User:setNumber("Fire", 0)
+    }
+    
+    if (Maintenance:isValid()) {
+        if (MaintenanceState == 0) {
+            TargetPos = MaintenancePos + vec(0, 0, 25)
+            TargetAng = MaintenanceAng
+            
+            if (compare(TargetPos, TargetAng)) {
+                MaintenanceState++    
+            }
+        } elseif (MaintenanceState == 1) {
+            TargetPos = entity():pos() + vec(0, 0, 25)
+            TargetAng = entity():eyeAngles()
+            
+            local Flag = owner():aimEntity() == Maintenance
+            if (Maintenance:wirelink():number("Battery") < 100) {
+                if (Flag) {concmd("darkrp buybattery")}
+            } elseif (Maintenance:wirelink():number("Coolant") < 100) {
+                if (Flag) {concmd("darkrp buycoolingcell")}
+            } else {
+                MaintenanceState++
+            }
+        } elseif (MaintenanceState == 2) {
+            TargetPos = MaintenancePos + vec(0, 0, 25)
+            TargetAng = MaintenanceAng
+            
+            if (compare(TargetPos, TargetAng)) {
+                MaintenanceState++
+            }
+        } elseif (MaintenanceState == 3) {
+            TargetPos = MaintenancePos + vec(0, 0, 5)
+            TargetAng = MaintenanceAng
+            
+            if (compare(TargetPos, TargetAng)) {
+                Maintenance = noentity()
+                MaintenanceState = 0
+            }
+        }
+        Maintenance:applyForce(((TargetPos - Maintenance:pos()) * Speed - Maintenance:vel()) * Maintenance:mass())
+        Maintenance:applyAngForce((Maintenance:toLocal(TargetAng)*AngSpeed - Maintenance:angVel()*(AngSpeed/10))*shiftL(ang(Maintenance:inertia())))
+    } elseif (MaintenanceState > 0) {
+        MaintenanceState = 0
+    }
+    
+    UserEnt:applyForce(((UserTargetPos - UserEnt:pos()) * UserSpeed - UserEnt:vel()) * UserEnt:mass())
+    UserEnt:applyAngForce((UserEnt:toLocal(UserTargetAng)* UserAngSped - UserEnt:angVel()*(UserAngSped/10))*shiftL(ang(UserEnt:inertia())))
+    
+    EGP:updateEgp(StartTime, Total, Goal, PrinterCount)
+}
+
+event removed(N:number) {
+    N=N
+    User:setNumber("Fire", 0)
+    User:setNumber("Fade", 0)
+}

@@ -1,0 +1,51 @@
+@name Meow's lib
+#Just a few useful things i dont want to put in my code.
+
+function number compareVectors(Vec1:vector, Vec2:vector, Margin:number) {
+    local X = abs(Vec1:x() - Vec2:x())
+    local Y = abs(Vec1:y() - Vec2:y())
+    local Z = abs(Vec1:z() - Vec2:z())
+    
+    return vec(X, Y, Z):length() < Margin
+}
+
+function number compareAngles(Ang1:angle, Ang2:angle, Margin:number) {
+    local Yaw = abs(Ang1:yaw() - Ang2:yaw())
+    local Pitch = abs(Ang1:pitch() - Ang2:pitch())
+    local Roll = abs(Ang1:roll() - Ang2:roll())
+    
+    return max(Yaw, Pitch, Roll) < Margin
+}
+
+function string timeConversion(Seconds) {
+    local Days = floor(Seconds / 86400)
+    local Hours = floor((Seconds % 86400) / 3600)
+    local Minutes = floor(((Seconds % 86400) % 3600) / 60)
+    local Seconds = floor(((Seconds % 86400) % 3600) % 60)
+    
+    return format("%dd %dh %dm %ds", Days, Hours, Minutes, Seconds)
+}
+
+function wirelink:displayHistory(Index, Value, MaxValue, History:array, MaxHistory, Color:vector) {
+    if (History:count() >= MaxHistory) {
+        History:shift()
+    }
+    
+    Value = clamp(Value/MaxValue, 0, 1)
+
+    History:pushNumber(Value)
+    
+    local X = 0
+    local Y = 0
+    local Height = 246
+    local Width = 512
+    local StartY = 512
+    local StartX = 0
+
+    foreach(I, V:number = History) {
+        Y = StartY - V * Height
+        X = StartX + (Width / MaxHistory) * I
+        This:egpBox(Index + I, vec2(X, Y), vec2(4, 4))
+        This:egpColor(Index + I, Color)
+    }
+}

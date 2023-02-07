@@ -1,0 +1,21 @@
+@name Themes
+@persist Themes:table SelectedTheme:string
+
+SelectedTheme = "Dark"
+
+Themes = table()
+
+function vector getElement(Element:string) {
+    return Themes[SelectedTheme, table][Element, vector]
+}
+
+Themes["Dark", table] = table()
+Themes["Dark", table]["Background", vector] = vec(0)
+Themes["Dark", table]["Font", vector] = vec(255)
+Themes["Dark", table]["Foreground", vector] = vec(50)
+
+Themes["White", table] = table()
+Themes["White", table]["Background", vector] = vec(255)
+Themes["White", table]["Font", vector] = vec(0)
+Themes["White", table]["Foreground", vector] = vec(200)
+
