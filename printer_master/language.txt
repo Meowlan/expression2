@@ -1,0 +1,28 @@
+@name Language
+@persist Languages:table SelectedLanguage:string
+
+SelectedLanguage = "English"
+
+Languages = table()
+
+function string getLanguageString(Element:string) {
+    return Languages[SelectedLanguage, table][Element, string]
+}
+
+function number setLanguage(Language:string) {
+    if (Languages:exists(Language)) {
+        SelectedLanguage = Language
+        return 1
+    } else { 
+        return 0
+    }
+}
+
+Languages["English", table] = table()
+Languages["English", table]["WelcomeMessage", string] = "Printer master %s initialized!\nAuthor: Paradise & Meowlan"
+Languages["English", table]["SetThemeError", string] = "Theme does %s not exist"
+Languages["English", table]["SetThemeSuccess", string] = "Selected %s as a theme."
+Languages["English", table]["SetLanguageError", string] = "Language does %s not exist"
+Languages["English", table]["SetLanguageSuccess", string] = "Selected %s as a language."
+Languages["English", table]["PrinterAdded", string] = "Printer added. Now managing %d printers!"
+Languages["English", table]["PrinterRemoved", string] = "Printer removed. Now managing %d printers!"
