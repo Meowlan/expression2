@@ -47,7 +47,7 @@ local AimEntity = owner():aimEntity()
     if (E == owner() & AimEntity:isValid()) {
         if (S == ";add" ) {
             hideChat(1)
-            AimEntity:setMass(250)
+            AimEntity:setMass(50)
             Entities:pushEntity(AimEntity)
             
             local Data = table()
