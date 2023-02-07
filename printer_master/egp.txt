@@ -11,7 +11,6 @@
 ]#
 
 History = array()
-SelectedTheme = "White"
 
 function wirelink:setupEgp() {
     local EGP = This

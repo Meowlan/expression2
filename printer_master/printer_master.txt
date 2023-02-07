@@ -103,11 +103,11 @@ function handleMessage(Ent:entity, Message:string, N:number) {
     if (Args[1, string] == "theme") {
         if (!Themes:exists(Args[2, string])) {  #Check  if theme exists
             print(format("Theme does %s not exist", Args[2, string]))
-            EGP:setupEgp()
             return
         }
 
         SelectedTheme = Args[2, string]
+        EGP:setupEgp()
         print(format("Selected %s as a theme.", SelectedTheme))
     } elseif (Args[1, string] == "language") {
         if (!Languages:exists(Args[2, string])) {  #Check  if theme exists
@@ -117,6 +117,7 @@ function handleMessage(Ent:entity, Message:string, N:number) {
         }
 
         SelectedLanguage = Args[2, string]
+        EGP:setupEgp()
         print(format("Selected %s as a language.", SelectedLanguage))
     } elseif (Args[1, string] == "add") { #Adds printer to list
         local AimEntity = owner():aimEntity()

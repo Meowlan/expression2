@@ -16,6 +16,15 @@ function number getThemeNumber(Element:string) {
     return Themes[SelectedTheme, table][Element, number]
 }
 
+function number setTheme(Theme:string) {
+    if (Themes:exists(Theme)) {
+        SelectedTheme = Theme
+        return 1
+    } else { 
+        return 0
+    }
+}
+
 Themes["Dark", table] = table()
 Themes["Dark", table]["Background", vector] = vec(0,0,0)    #Background Color
 Themes["Dark", table]["FontSize", number] = 30              #Font Size
