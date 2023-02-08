@@ -1,0 +1,166 @@
+@name Money Overview
+@inputs EGP:wirelink
+@persist History:array MoneyStarted TimeStarted Time Goal Player:entity Theme:string
+
+#include "money_overview/themes"
+
+if (first() | duped()) {
+    Goal = 1000000000
+    Player = owner()
+    Theme = "Dark"
+    
+    History = array()
+    Time = 0
+    TimeStarted = systime()
+    MoneyStarted = Player:money()
+}
+
+function wirelink:displayHistory(Index, Value, History:array, MaxHistory, Color:vector) {
+    if (History:count() >= MaxHistory) {
+        History:shift()
+    }
+
+    History:pushNumber(Value)
+    local HistoryMax = History:max()
+    
+    local Positions = array()
+
+    local X = 0
+    local Y = 0
+    local Height = 246
+    local Width = 512
+    local StartY = 512
+    local StartX = 0
+
+    foreach(I, V:number = History) {
+        V = clamp(V / (HistoryMax*1.25), 0, 1)
+        Y = StartY - V * Height
+        X = StartX + (Width / MaxHistory) * I
+        
+        Positions:pushVector2(vec2(X, Y))
+        
+        This:egpCircle(Index + I, vec2(X, Y), vec2(2, 2))
+        This:egpColor(Index + I, Color)
+    }
+    
+    EGP:egpLineStrip(MaxHistory+1, Positions)
+    EGP:egpColor(MaxHistory+1, Color)
+}
+
+function wirelink:setupEgp() {
+    local EGP = This
+    EGP:egpClear()
+
+    EGP:egpBox(1 ,vec2(256, 256),vec2(512,512)) #Background
+    EGP:egpColor(1 , getThemeVec("Background"))
+    
+    EGP:egpRoundedBox(2,vec2(256,0),vec2(512-1,128)) #Top Box
+    EGP:egpColor(2, getThemeVec("TopBar"))
+    
+    EGP:egpRoundedBoxOutline(3,vec2(256,0),vec2(512-1,128)) #Top Box Outline
+    EGP:egpColor(3, getThemeVec("TopBarOutline"))
+    
+    EGP:egpText(4, format("%s's overview", Player:name()), vec2(15,15))
+    EGP:egpColor(4, getThemeVec("Title"))
+    EGP:egpFont(4, getThemeString("TitleFont"), getThemeNumber("TitleSize"))
+
+    EGP:egpRoundedBox(5,vec2(256,128+12),vec2(512-1,128)) #Middle Box
+    EGP:egpColor(5, getThemeVec("InfoBox"))
+
+    EGP:egpRoundedBoxOutline(6,vec2(256,128+12),vec2(512-1,128)) #Middle Box Outline
+    EGP:egpColor(6, getThemeVec("InfoBoxOutline"))
+    
+    EGP:egpText(7, "quack", vec2(8,80)) #Info Text
+    EGP:egpAlign(7, 0)
+    EGP:egpColor(7, getThemeVec("Info1"))
+    EGP:egpFont(7, getThemeString("InfoFont"),  getThemeNumber("InfoSize"))
+    
+    EGP:egpText(8, "quack", vec2(8,110)) #Info Text
+    EGP:egpAlign(8, 0)
+    EGP:egpColor(8, getThemeVec("Info2"))
+    EGP:egpFont(8, getThemeString("InfoFont"),  getThemeNumber("InfoSize"))
+    
+    EGP:egpText(9, "quack", vec2(8,140)) #Info Text
+    EGP:egpAlign(9, 0)
+    EGP:egpColor(9, getThemeVec("Info3"))
+    EGP:egpFont(9, getThemeString("InfoFont"),  getThemeNumber("InfoSize"))
+    
+    EGP:egpText(10, "quack", vec2(8,170)) #Info Text
+    EGP:egpAlign(10, 0)
+    EGP:egpColor(10, getThemeVec("Info4"))
+    EGP:egpFont(10, getThemeString("InfoFont"),  getThemeNumber("InfoSize"))
+    
+    EGP:egpText(11, "quack", vec2(8,205)) #Info Text
+    EGP:egpAlign(11, 0)
+    EGP:egpColor(11, getThemeVec("Goal"))
+    EGP:egpFont(11, getThemeString("InfoFont"),  getThemeNumber("InfoSize"))
+    
+    EGP:egpBox(12, vec2(220, 332), vec2(0, 20)) # Progress Bar
+    EGP:egpColor(12, getThemeVec("Bar"))
+    
+    EGP:egpBoxOutline(13,vec2(256+64+12,220),vec2(256+64+32,20)) # Progress Bar Outline
+    EGP:egpColor(13, getThemeVec("BarOutline"))
+    
+    EGP:egpText(14, "Goal :", vec2(8,235)) #Goal Text
+    EGP:egpAlign(14, 0)
+    EGP:egpColor(14, getThemeVec("Goal2"))
+    EGP:egpFont(14,  getThemeString("InfoFont"),   getThemeNumber("InfoSize"))
+
+    EGP:egpRoundedBox(15, vec2(256,256+143),vec2(512-1,192+68)) # Bottom Box
+    EGP:egpColor(15, getThemeVec("GraphBox"))
+
+
+    EGP:egpRoundedBoxOutline(16,vec2(256,256+143),vec2(512-1,192+68)) #Bottom Box Outline
+    EGP:egpColor(16, getThemeVec("GraphBoxOutline"))
+}
+
+
+if (->EGP) {
+    setTheme(Theme)
+    EGP:setupEgp()    
+}
+
+function string timeConversion(Seconds) {
+    local Days = floor(Seconds / 86400)
+    local Hours = floor((Seconds % 86400) / 3600)
+    local Minutes = floor(((Seconds % 86400) % 3600) / 60)
+    local Seconds = floor(((Seconds % 86400) % 3600) % 60)
+    
+    return format("%dd %dh %dm %ds", Days, Hours, Minutes, Seconds)
+}
+
+function wirelink:updateEgp(...Vargs:array) {
+    local EGP = This
+    StartTime = Vargs[1, number]
+    Total = Vargs[2, number]
+    Goal = Vargs[3, number]
+    
+    local TimeSinceStart = floor(systime()-StartTime)
+    local CPM = (Total/TimeSinceStart)*60
+    local CurMoney = clamp(Player:money(), 0, Goal)
+    local TimeLeft = (Goal-CurMoney)/(CPM/60)
+    local GoalPercent = CurMoney/Goal
+    
+    EGP:egpText(9, format("Cash per minute: %.02f$/m", CPM), vec2(8,140))
+    EGP:egpText(8, format("Total: $%d", Total), vec2(8,110))
+    EGP:egpText(10, format("Time left: %s", timeConversion(TimeLeft)), vec2(8,170))
+    EGP:egpText(11, format("Goal %.01f%%", (GoalPercent)*100), vec2(8,205))
+    EGP:egpText(14, format("$%d / $%d", CurMoney, Goal), vec2(8,235))
+    
+    local Pixels = 352 
+    local Scale = GoalPercent*Pixels
+    local Pos = vec2(332 + (Scale/2) - Pixels/2 , 220) 
+    EGP:egpBox(12, Pos, vec2(Scale, 19))    
+    
+    if((Time % 100) == 0) {
+        EGP:displayHistory(17, CPM, History, 75, getThemeVec("Graph"))
+    }
+}
+
+event tick() {
+    Time++
+    
+    local Total = Player:money()-MoneyStarted
+    
+    EGP:updateEgp(TimeStarted, Total, Goal)
+}
