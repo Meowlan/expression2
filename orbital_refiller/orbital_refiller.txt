@@ -187,6 +187,7 @@ event tick() {
         }
 
         if (owner():aimEntity() == Wanted) {
+            local Link = Wanted:wirelink()
             if (Link:number("Battery") < Config["MaxBattery", number]) { 
                 concmd("darkrp buybattery")
             } elseif (Link:number("Coolant") < Config["MaxCoolant", number]) {
@@ -229,5 +230,4 @@ event tick() {
         setName(format("A: %0.2f DT: %0.2f P: %d HA: %0.2f", AngleIncrement, DeltaTime, Entities:count(), HoloAng))
     }
 }
-
 
