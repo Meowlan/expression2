@@ -8,8 +8,8 @@ It also supports a user to collect the money of the printers, just connect a use
 It currently doesnt really support alot of printers and is really unefficent. i will try to fix that.
 
 Some useful chat commands:
-;add
-;remove
-;reset
-;config number Radius 50
-;config number MaxRange 50
+- ;add
+- ;remove
+- ;reset
+- ;config number Radius 50
+- ;config number MaxRange 50
