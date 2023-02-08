@@ -18,7 +18,7 @@ function configVector(K:string, V:vector) {
 
 Config["ChatPrefix", string] = ";"
 Config["Radius", number] = 45
-Config["MaxPerf", number] = 5
+Config["MaxPerf", number] = 100
 Config["RotateSpeed", number] = 10
 Config["MaxRange", number] = 250
 Config["MaxMoney", number] = 100
