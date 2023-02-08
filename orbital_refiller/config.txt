@@ -16,18 +16,19 @@ function configVector(K:string, V:vector) {
     Config[K, vector] = V
 }
 
-Config["ChatPrefix", string] = ";"
-Config["Radius", number] = 45
-Config["MaxPerf", number] = 100
+Config["ChatPrefix", string] = ";" #nice
+Config["Radius", number] = 50
+Config["DistanceOffset", number] = 50
+Config["MaxPerf", number] = 25
 Config["RotateSpeed", number] = 10
 Config["MaxRange", number] = 250
 Config["MaxMoney", number] = 100
 Config["MaxCoolant", number] = 100
 Config["MaxBattery", number] = 100
-Config["MinCoolant", number] = 10
+Config["MinCoolant", number] = 20
 Config["MinBattery", number] = 10
 Config["Margin", number] = 2
-Config["OffsetPos", vector] = vec(0, 0, 30)
+Config["OffsetPos", vector] s= vec(0, 0, 30)
 Config["Damping", number] = 0.25
 Config["Spring", number] = 0.1
 Config["Speed", number] = 20
