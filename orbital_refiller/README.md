@@ -13,3 +13,5 @@ Some useful chat commands:
 - ;reset
 - ;config number Radius 50
 - ;config number MaxRange 50
+
+if the e2 is crashing because of tick quota exceed try lowering the MaxPerf config value.
