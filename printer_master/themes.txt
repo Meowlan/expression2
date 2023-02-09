@@ -98,6 +98,29 @@ function initThemes() {
     Themes["Random", table]["GraphBox", vector] = randvec(0, 255)
     Themes["Random", table]["GraphBoxOutline", vector] = randvec(0, 255)
     Themes["Random", table]["Graph", vector] = randvec(0, 255)
+    
+    Themes["Rasta", table] = table()
+    Themes["Rasta", table]["TitleFont", string] = ""
+    Themes["Rasta", table]["TitleSize", number] = 40
+    Themes["Rasta", table]["InfoFont", string] = ""               
+    Themes["Rasta", table]["InfoSize", number] = 30           
+    Themes["Rasta", table]["Background", vector] = vec(255,0,0)
+    Themes["Rasta", table]["TopBar", vector] = vec(0,255,0)
+    Themes["Rasta", table]["TopBarOutline", vector] = vec(0)
+    Themes["Rasta", table]["Title", vector] = vec(255,255,0)
+    Themes["Rasta", table]["InfoBox", vector] = vec(0,255,0)
+    Themes["Rasta", table]["InfoBoxOutline", vector] = vec(0)
+    Themes["Rasta", table]["Info1", vector] = vec(255,255,0)
+    Themes["Rasta", table]["Info2", vector] = vec(255,255,0)
+    Themes["Rasta", table]["Info3", vector] = vec(255,255,0)
+    Themes["Rasta", table]["Info4", vector] = vec(255,255,0)
+    Themes["Rasta", table]["Goal", vector] = vec(255,255,0)
+    Themes["Rasta", table]["Bar", vector] = vec(255,255,0)
+    Themes["Rasta", table]["BarOutline", vector] = vec(255,255,0)
+    Themes["Rasta", table]["Goal2", vector] = vec(255,255,0)
+    Themes["Rasta", table]["GraphBox", vector] = vec(0,255,0)
+    Themes["Rasta", table]["GraphBoxOutline", vector] =vec(255,255,0)
+    Themes["Rasta", table]["Graph", vector] = vec(0)
 }
 
 initThemes()
