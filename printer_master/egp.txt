@@ -48,9 +48,10 @@ function wirelink:setupEgp() {
     EGP:egpRoundedBoxOutline(3,vec2(256,0),vec2(512-1,128)) #Top Box Outline
     EGP:egpColor(3, getThemeVec("TopBarOutline"))
     
-    EGP:egpText(4, "Owner:" + entity():owner():name()+" | Print Master ", vec2(15,15))
+    EGP:egpText(4, "[---------| Printer Master |---------]", vec2(256,13))
     EGP:egpColor(4, getThemeVec("Title"))
     EGP:egpFont(4, getThemeString("TitleFont"), getThemeNumber("TitleSize"))
+    EGP:egpAlign(4,1)
 
     EGP:egpRoundedBox(5,vec2(256,128+12),vec2(512-1,128)) #Middle Box
     EGP:egpColor(5, getThemeVec("InfoBox"))
@@ -83,13 +84,13 @@ function wirelink:setupEgp() {
     EGP:egpColor(11, getThemeVec("Goal"))
     EGP:egpFont(11, getThemeString("InfoFont"),  getThemeNumber("InfoSize"))
     
-    EGP:egpBox(12, vec2(220, 332), vec2(0, 20)) # Progress Bar
+    EGP:egpBox(12, vec2(256+64+15,220),vec2(256+64+32,20)) # Progress Bar
     EGP:egpColor(12, getThemeVec("Bar"))
     
-    EGP:egpBoxOutline(13,vec2(256+64+12,220),vec2(256+64+32,20)) # Progress Bar Outline
+    EGP:egpBoxOutline(13,vec2(256+64+12,223),vec2(256+64+32,20)) # Progress Bar Outline
     EGP:egpColor(13, getThemeVec("BarOutline"))
     
-    EGP:egpText(14, "Goal :", vec2(8,235)) #Goal Text
+    EGP:egpText(14, "Goal :", vec2(8,2350)) #Goal Text
     EGP:egpAlign(14, 0)
     EGP:egpColor(14, getThemeVec("Goal2"))
     EGP:egpFont(14,  getThemeString("InfoFont"),   getThemeNumber("InfoSize"))
@@ -119,12 +120,12 @@ function wirelink:updateEgp(...Vargs:array) {
     EGP:egpText(9, format("Cash per minute: %.02f$/m", CPM), vec2(8,140))
     EGP:egpText(8, format("Total: $%d", Total), vec2(8,110))
     EGP:egpText(10, format("Time left: %s", timeConversion(TimeLeft)), vec2(8,170))
-    EGP:egpText(11, format("Goal %.01f%%", (GoalPercent)*100), vec2(8,205))
+    EGP:egpText(11, format("Goal %.01f%%", (GoalPercent)*100), vec2(8,207))
     EGP:egpText(14, format("$%d / $%d", CurMoney, Goal), vec2(8,235))
     
     local Pixels = 352 
     local Scale = GoalPercent*Pixels
-    local Pos = vec2(332 + (Scale/2) - Pixels/2 , 220) 
+    local Pos = vec2(333 + (Scale/2) - Pixels/2 , 223) 
     EGP:egpBox(12, Pos, vec2(Scale, 19))    
     
     if (curtime() % 60 == 0) {
