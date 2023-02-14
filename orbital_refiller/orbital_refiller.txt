@@ -119,23 +119,24 @@ event tick() {
         
         local Count = Entities:count()
         local AngleIncrement = 360 / Count
-
-        local Distance = clamp(owner():pos():distance(entity():pos() + Config["OffsetPos", vector]), 0, Config["MaxRange", number])
         
         foreach(K:number, Ent:entity = Entities) {
             if (!Ent:isValid()) {Entities:remove(K)}
             
+            local EntityCoune = Entities:count()
+            if (Wanted:isValid() & Ent == Wanted) {WantedID = (EntityCoune-K) + 1 % EntityCoune}
+            
             local Link = Ent:wirelink()
-
-            local Offset = 180
-
-            if (Wanted:isValid() & Ent == Wanted) {
-                WantedID = (Count-K) + 1 % Count
-            } elseif (!Wanted:isValid()) {
+            
+            if (!Wanted:isValid()) {
                 if(Link:number("Battery") < Config["MinBattery", number] | Link:number("Coolant") < Config["MinCoolant", number]) {
                     Wanted = Ent    
                 }
-
+            }
+            
+            local Offset = 180
+            
+            if (!Wanted:isValid()) {
                 Offset += (CurTime * Config["RotateSpeed", number])    
             } else {
                 Offset += (angleBetweenVectors(entity():pos() + Config["OffsetPos", vector], owner():pos()) - 90) + (AngleIncrement*WantedID)
@@ -149,7 +150,6 @@ event tick() {
             local Velocity = EntityData[K,table]["Velocity", number]
             
             local Distance = Offset - CurOffset
-
             if (Distance > 180) {
                 Distance = Distance - 360
             } elseif (Distance < -180) {
@@ -165,12 +165,25 @@ event tick() {
             
             local Angle = ((AngleIncrement * (K-1)) + CurOffset) + 180 % 360
             local Radius = Config["Radius", number]
+            local DistanceToPlayer = clamp(owner():pos():distance(entity():pos() + Config["OffsetPos", vector]), 0, Config["MaxRange", number])
             
             if (Wanted == Ent) {
-                if (Distance < Radius) {
-                    Radius = Distance+Config["DistanceOffset", number]
+                if (DistanceToPlayer < Radius) {
+                    Radius = DistanceToPlayer+40    
                 } else {
-                    Radius =  Distance-Config["DistanceOffset", number]
+                    Radius =  DistanceToPlayer-50
+                }
+    
+                #local Dif = (((AngleIncrement * (K-1)) + CurOffset) + 180 % 360) - (((AngleIncrement * (K-1)) + Offset) + 180 % 360)
+                
+                if (owner():aimEntity() == Wanted) {
+                    if (Link:number("Battery") < Config["MaxBattery", number]) {
+                        concmd("darkrp buybattery")
+                    } elseif (Link:number("Coolant") < Config["MaxCoolant", number]) {
+                        concmd("darkrp buycoolingcell")
+                    } else {
+                        Wanted = noentity()
+                    }
                 }
             }
             
@@ -184,24 +197,16 @@ event tick() {
                 Total += Link:number("MoneyStored")
                 UserTarget = Ent
             }
-        }
-
-        if (owner():aimEntity() == Wanted) {
-            local Link = Wanted:wirelink()
-            if (Link:number("Battery") < Config["MaxBattery", number]) { 
-                concmd("darkrp buybattery")
-            } elseif (Link:number("Coolant") < Config["MaxCoolant", number]) {
-                concmd("darkrp buycoolingcell")
-            } else {
-                Wanted = noentity()
-            }
+            
         }
         
         local UserTargetPos = UserTarget:massCenter()
         
         if (!UserTarget:isValid()) {
             UserTargetPos = entity():pos() + Config["OffsetPos", vector]
-        } elseif(compareVectors(UserTargetPos, UserEnt:pos(), Config["Margin", number])) {
+        } 
+    
+        if (compareVectors(UserTargetPos, UserEnt:pos(), Config["Margin", number]) & UserTarget:isValid()) {
             User:setNumber("Fire", 1)
             UserTarget = noentity()
         } else {
@@ -215,9 +220,9 @@ event tick() {
         local Distance = clamp(owner():pos():distance(entity():pos() + Config["OffsetPos", vector]), 0, Config["MaxRange", number])
     
         if (Distance < Radius) {
-            Radius = Distance+Config["DistanceOffset", number]
+            Radius = Distance+35
         } else {
-            Radius =  Distance-Config["DistanceOffset", number]
+            Radius =  Distance-50
         }
     
         local HoloAng = ((angleBetweenVectors(entity():pos() + Config["OffsetPos", vector], owner():pos())) - 90) % 360
