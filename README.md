@@ -1,11 +1,9 @@
-A place for a bunch of my e2 scripts
+## A place for a bunch of e2 scripts made by me and friends
 
 Use "Meow's Git Installer" to easily install *any github repo
 
-dont expect good code nor english.
 
-If you are using my scripts for ncrp i would always appreciate a small credit donation <3
-
+Pretty much only spaghetti and jank code, dont bully me. :<
 
 
-*any supported github repo (the main file must be called main.txt and the e2 will only download .txt files)
+###### *any supported github repo (the main file must be called main.txt and the e2 will only download .txt files)
