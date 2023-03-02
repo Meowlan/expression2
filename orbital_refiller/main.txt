@@ -190,7 +190,7 @@ event tick() {
             local TargetPos = entity():pos() + Config["OffsetPos", vector] + vec(cos(Angle) * Radius, sin(Angle) * Radius, 0)
             local TargetAng = ang(180, Angle, 90)
 
-            Ent:applyForce( ( (TargetPos-Ent:pos())*Config["Speed", number]-Ent:vel() - propGravity()*tickInterval() )*Ent:mass() )
+            Ent:applyForce( ( (TargetPos-Ent:massCenter())*Config["Speed", number]-Ent:vel() - propGravity()*tickInterval() )*Ent:mass() )
             Ent:applyAngForce((Ent:toLocal(TargetAng)*200 - Ent:angVel()*20)*shiftL(ang(Ent:inertia())))
 
             if (Link:number("MoneyStored") >= Config["MaxMoney", number] & !UserTarget:isValid()) {
