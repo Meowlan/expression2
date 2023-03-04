@@ -76,6 +76,7 @@ if (first() | duped()) {
     
     #local Main = Code:removeString(Root+"/main")
     #entity():remoteSetCode(Main, Code)    
+    concmd("wire_expression2_reloadeditor")
     selfDestruct()
 }
 
