@@ -1,0 +1,178 @@
+@name ml paint
+
+#[ ml paint
+    Hook up a digital screen to it and draw.
+    Type # in chat to pick a color of the pixel you are looking at.
+    Type a hex color code with # in the chat to select that as your color.
+    
+    Feel free to use this code as you
+    please.
+    
+    https://ko-fi.com/meowlan
+    https://github.com/Meowlan
+]#
+
+
+@inputs DS:wirelink
+@persist Res PixelSize:vector2 Users:table Hue Pixels:table
+#include "paint/digitalscreen"
+
+function wirelink:setPixel(Pos:vector2, Color:vector) {
+    This[(Pos:x() - 1) * Res + (Pos:y() - 1)] = rgb2digi(Color, 2)        
+}
+
+function number wirelink:getPixel(Pos:vector2) {
+    return This[(Pos:x() - 1) * Res + (Pos:y() - 1)]      
+}
+
+if ((first() | dupefinished() | ~DS) & ->DS) {
+    Res = 128
+    Users = table()
+    Pixels = table()
+    Hue = 0
+    
+    #DS:clear()
+    DS:setColorMode(2)
+    
+    DS:setWidth(Res)
+    DS:setHeight(Res)
+    
+    local Size = DS:entity():aabbSize()
+    PixelSize3 = Size / (Res)
+    PixelSize = vec2(PixelSize3:x(), PixelSize3:y())
+    
+    #holoCreate(1)
+    #holoScaleUnits(1, vec(PixelSize:x(), PixelSize:y(), 1))
+    #holoAng(1, DS:entity():angles())
+    #holoMaterial(1, "models/wireframe")
+    #holoParent(1, DS:entity())
+    
+    
+    
+    for (I=1, Res) {
+        DS:setPixel(vec2(Res - 2, I), hsv2rgb(360 * (I/Res), 1, 1))
+        DS:setPixel(vec2(Res, I), hsv2rgb(0, 0, I/Res))
+    }
+    
+    for (I=1, Res / 2) {
+        DS:setPixel(vec2(Res - 1, I + (Res / 2)), hsv2rgb(Hue, 1 - (I / (Res / 2)), 1))
+        DS:setPixel(vec2(Res - 1, I), hsv2rgb(Hue, 1, I / (Res / 2)))
+    }
+}
+
+function vector2 worldToScreen(Pos:vector) {
+    local Pos3 = DS:entity():toLocal(Pos)
+    local Pos2 = vec2(Pos3)
+    
+    return round((Pos2 / PixelSize) + vec2(0.5))
+}
+
+function vector2 vector2:translateCoords() {
+    return This + vec2(Res/2)
+}
+
+function string componentToHex(C) {
+    local Hex = C:toString(16)
+    return Hex:length() == 1 ? "0" + Hex : Hex
+}
+
+function string rgb2hex(Color:vector) {
+    return "#" + componentToHex(Color:x()) + componentToHex(Color:y()) + componentToHex(Color:z())  
+}
+
+function vector hex2rgb(Color:string) {
+    if (Color:length() != 7) { exit() }
+    
+    local R = Color:sub(2, 3):toNumber(16)
+    local G = Color:sub(4, 5):toNumber(16)
+    local B = Color:sub(6, 7):toNumber(16)
+    
+    return vec(R, G, B)
+}
+
+function vector digi2rgb(Color:number) {
+    local R = floor(Color / 65536) % 256
+    local G = floor(Color / 256) % 256
+    local B = Color % 256
+    return vec(R, G, B)
+}
+
+function entity:pm(String:string) {
+    if (This == owner() | !This:isValid()) {
+        print(String)
+        return    
+    }
+    
+    concmd(format("sam pm \"%s\" \"%s\"", This:steamID(), String:replace("\n", " ")))
+}
+
+#[event tick() {
+    if (owner():aimEntity() != DS:entity()) {exit()} 
+    
+    local Pos = (worldToScreen(owner():aimPos()) - vec2(0.5)) * PixelSize
+
+    holoPos(1, DS:entity():toWorld(vec(Pos:x(), Pos:y(), 1.5)))
+    holoColor(1, SelectedColor)
+}]#
+
+event chat(E:entity, S:string, N:number) {
+    if (E:aimEntity() != DS:entity()) { exit() } 
+    local Pos = round(worldToScreen(E:aimPos()):translateCoords()) 
+    
+    if (!Users:exists(E:steamID())) {
+        Users[E:steamID(), table] = table( "color" = vec(255))
+    }
+    
+    if (S:sub(1, 1) == "#" & S:length() == 7) {
+        Users[E:steamID(), table]["color", vector] = hex2rgb(S)
+        E:pm(format("{%s %s} %s", S, toUnicodeChar(9608):repeat(5), S))
+    } elseif (S:sub(1, 1) == "#") {
+        local Color = digi2rgb(DS:getPixel(Pos))
+
+        Users[E:steamID(), table]["color", vector] = Color
+        E:pm(format("{%s %s} %s", rgb2hex(Color), toUnicodeChar(9608):repeat(5), rgb2hex(Color)))
+    } elseif( S == "who") {
+        local String = Pixels[Pos:toString(), string]
+        E:pm(String:length() ? Pixels[Pos:toString(), string] : "Pixel not owned")    
+    }
+}
+
+event keyPressed(E:entity, Key:string, State:number, Bind:string) {
+    if (!State) { exit() }
+    if (E:aimEntity() != DS:entity()) { exit() }
+    if (E:pos():distance(entity():pos()) > 350) { exit() }
+    
+    if(Bind == "use") {
+        local Pos = round(worldToScreen(E:aimPos()):translateCoords())
+        if (!Users:exists(E:steamID())) {
+            Users[E:steamID(), table] = table( "color" = vec(255))
+        }
+        
+        if (Pos:x() > Res - 3) {
+            local Color = digi2rgb(DS:getPixel(Pos))
+            local HSV = rgb2hsv(Color)
+            
+            Hue = HSV:x()
+            
+            for (I=1, Res / 2) {
+                DS:setPixel(vec2(Res - 1, I + (Res / 2)), hsv2rgb(Hue, 1 - (I / (Res / 2)), 1))
+                DS:setPixel(vec2(Res - 1, I), hsv2rgb(Hue, 1, I / (Res / 2)))
+            }
+            
+            Users[E:steamID(), table]["color", vector] = Color
+            E:pm(format("{%s %s} %s", rgb2hex(Color), toUnicodeChar(9608):repeat(5), rgb2hex(Color)))
+            
+        } else {
+            Users[E:steamID(), table]["pos", vector2] = Pos
+            #moneyRequest(E, 1000, "1 Pixel $1k")
+            DS:setPixel(Pos, Users[E:steamID(), table]["color", vector])
+            Pixels[Pos:toString(), string] = E:name()
+        }
+    }    
+}
+
+if (moneyClk()) {
+    local E = moneyClkPlayer()
+    local Data = Users[E:steamID(), table]
+    DS:setPixel(Data["pos", vector2], Data["color", vector])        
+}

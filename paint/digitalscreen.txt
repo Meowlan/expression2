@@ -1,0 +1,37 @@
+@name DScreenLib
+
+function number wirelink:getColorMode() {
+    return This[1048569]
+}
+
+function wirelink:setColorMode(Mode) {
+    This[1048569] = Mode
+}
+
+function wirelink:clearRow(Row) {
+    This[1048570] = Row
+}
+
+function wirelink:clearcolumn(Column) {
+    This[1048571] = Column
+}
+
+function number wirelink:getHeight() {
+    return This[1048572]
+}
+
+function wirelink:setHeight(Height) {
+    This[1048572] = Height
+}
+
+function number wirelink:getWidth() {
+    return This[1048573]
+}
+
+function wirelink:setWidth(Width) {
+    This[1048573] = Width
+}
+
+function wirelink:clear() {
+    This[1048574] = 1
+}
