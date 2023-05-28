@@ -1,0 +1,22 @@
+@inputs EGP:wirelink USER:entity
+
+function button1(User:entity) {print(User)}
+
+
+if ((first() | dupefinished() | ~EGP) & ->EGP) {
+    #include "mui"
+    
+    MUI["DEBUG", number] = 1
+    MUI["PADDING", number] = 15
+    MUI["ROUNDING", number] = 5
+    mui(EGP)
+    
+    local Background = mui_box(vec2(256), vec2(512)):mui_color(vec(70, 70, 70))
+    local ButtonFrame = Background:mui_roundedbox(vec2(0), vec2(400, 100)):mui_color(vec4(50, 50, 50, 150)):mui_outline():mui_color(vec(0, 0, 0))
+    
+    ButtonFrame:mui_roundedbox(vec2(0), vec2(75)):mui_color(vec(50)):mui_dock(-1, 0):mui_outline():mui_color(vec(255, 0, 0))
+    ButtonFrame:mui_roundedbox(vec2(0), vec2(75)):mui_color(vec(50)):mui_dock(0, 0):mui_outline():mui_color(vec(0, 255, 0))
+    ButtonFrame:mui_roundedbox(vec2(0), vec2(75)):mui_color(vec(50)):mui_dock(1, 0):mui_outline():mui_color(vec(0, 0, 255))
+}
+
+if (~USER & USER:isValid()) { mui_buttonclk(USER) }
