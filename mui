@@ -1,0 +1,227 @@
+@name MUI
+
+# HIGHLY WIP #
+
+#[ General EGP ui library
+
+    Feel free to use this code as you
+    please.
+    
+    https://ko-fi.com/meowlan
+    https://github.com/Meowlan
+]#
+
+@persist MUI:table
+
+MUI = table(
+    "MUI" = 1,
+    "EGP" = nowirelink(),
+    "ELEMENTS" = table(),
+    "BUTTONS" = table(),
+    "PADDING" = 0,
+    "ROUNDING" = 5,
+    "INDEX" = 1,
+    "DEBUG" = 1
+)
+
+# Helper functions
+
+function mui_print(String:string) {
+    if (MUI["DEBUG", number]) {
+        print(String)
+    }
+}
+
+function mui_addelement(Element:table) {
+    MUI["ELEMENTS", table]:pushTable(Element)
+    MUI["INDEX",number] = MUI["INDEX",number] + 1
+}
+
+function wirelink egp() { return MUI["EGP", wirelink]}
+function number index() { return MUI["INDEX", number]}
+
+function table mui_construct(Type:string, Index, Pos:vector2, Size:vector2, Color:vector4, Parent) {
+    local Element = table(
+        "MUI" = 1,
+        "TYPE" = Type,
+        "INDEX" = Index,
+        "POS" = Pos,
+        "SIZE" = Size,
+        "COLOR" = Color,
+        "PARENT" = Parent
+    )
+    
+    mui_addelement(Element)
+    return Element
+}
+
+# init function
+
+function mui(EGP:wirelink) {
+    if (!EGP:entity():isValid()) { exit() }
+    
+    MUI["EGP", wirelink] = EGP
+    egp():egpClear()
+    egp():egpDrawTopLeft(0)
+    
+    mui_print("mui initialized")
+}
+
+# Constructor
+
+function table mui_box(Pos:vector2, Size:vector2) {
+    egp():egpBox(index(), Pos, Size)
+    
+    local Element = mui_construct("box", index(), Pos, Size, vec4(255), 0)
+    
+    
+    return Element
+}
+
+function table table:mui_box(Pos:vector2, Size:vector2) {
+    if (!This["MUI", number]) { exit() }
+    
+    egp():egpBox(index(), Pos, Size)
+    egp():egpParent(index(), This["INDEX", number])
+    
+    local Element = mui_construct("box", index(), Pos, Size, vec4(255), This["INDEX", number])
+    
+    return Element
+}
+
+function table mui_roundedbox(Pos:vector2, Size:vector2) {
+    egp():egpRoundedBox(index(), Pos, Size)
+    egp():egpRadius(index(), MUI["ROUNDING", number])
+    
+    local Element = mui_construct("roundedbox", index(), Pos, Size, vec4(255), 0)
+    
+    return Element
+}
+
+function table table:mui_roundedbox(Pos:vector2, Size:vector2) {
+    if (!This["MUI", number]) { exit() }
+    
+    egp():egpRoundedBox(index(), Pos, Size)
+    egp():egpRadius(index(), MUI["ROUNDING", number])
+    egp():egpParent(index(), This["INDEX", number])
+    
+    local Element = mui_construct("roundedbox", index(), Pos, Size, vec4(255), This["INDEX", number])
+    
+    return Element
+}
+
+function table table:mui_button(Callback:string) {
+    if (!This["MUI", number]) { exit() }
+    
+    This["CALLBACK", string] = Callback
+    
+    MUI["BUTTONS", table]:pushTable(This)
+    
+    return This
+}
+
+# Modificator
+
+function table table:mui_outline() {
+    if (!This["MUI", number]) { exit() }
+    
+    local Type = ""
+
+    switch (This["TYPE", string]) {
+        case "box",
+            Type = "boxoutline"
+            egp():egpBoxOutline(index(), vec2(0), This["SIZE", vector2])
+            break
+            
+        case "roundedbox",
+            Type = "roundedboxoutline"
+            egp():egpRoundedBoxOutline(index(), vec2(0), This["SIZE", vector2])
+            egp():egpRadius(index(), MUI["ROUNDING", number])
+            break
+        
+    }
+    
+    egp():egpParent(index(), This["INDEX", number])
+    
+    local Element = mui_construct(Type, index(), This["POS", vector2], This["SIZE", vector2], This["COLOR", vector4], This["INDEX", number])
+    
+    return Element
+}
+
+function table:mui_destroy() {
+    if (!This["MUI", number]) { exit() }
+    
+    egp():egpRemove(This["INDEX", number])
+    This = table()
+}
+
+function table table:mui_color(Color:vector4) {
+    if (!This["MUI", number]) { exit() }
+    
+    egp():egpColor(This["INDEX", number], Color)
+    This["COLOR", vector4] = Color
+    
+    return This
+}
+
+function vector table:mui_color() {
+    if (!This["MUI", number]) { exit() }
+    
+    return This["COLOR", vector]
+}
+
+function table table:mui_color(Color:vector) {
+    if (!This["MUI", number]) { exit() }
+    
+    egp():egpColor(This["INDEX", number], Color)
+    This["COLOR", vector4] = vec4(Color:x(), Color:y(), Color:z(), egp():egpAlpha(This["INDEX", number]))
+    
+    return This
+}
+
+function vector4 table:mui_color4() {
+    if (!This["MUI", number]) { exit() }
+    
+    return This["COLOR", vector4]
+}
+
+function table table:mui_pos(Pos:vector2) {
+    if (!This["MUI", number]) { exit() }
+    
+    This["POS", vector2] = Pos
+    egp():egpPos(This["INDEX", number], Pos)
+    
+    return This    
+}
+
+function vector2 table:mui_pos() {
+    if (!This["MUI", number]) { exit() }
+    
+    return This["POS", vector2]    
+}
+
+
+function table table:mui_dock(A, B) {
+    if (!This["MUI", number]) { exit() }
+    
+    local ParentSize = This["PARENT", number] ? egp():egpSize(This["PARENT", number]) : egp():egpSize()
+    local Size = egp():egpSize(This["INDEX", number])
+    
+    local Pos = (ParentSize / 2) * vec2(A, B) - (Size * vec2(A, B)) / 2 - vec2(A, B) * MUI["PADDING", number]
+
+    This:mui_pos(Pos)
+    
+    return This
+}
+
+function mui_buttonclk(User:entity) {
+    local Pos = egp():egpCursor(User)
+
+    foreach(K:number, Button:table = MUI["BUTTONS", table]) {
+        local State = egp():egpObjectContainsPoint(Button["INDEX", number], Pos)
+        
+        if(State) {
+            Button["CALLBACK", string](User)
+        }
+    }
+}
