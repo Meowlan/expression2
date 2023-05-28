@@ -1,0 +1,73 @@
+@name eyes
+
+#[ Eyes that face the closest player
+
+    Feel free to use this code as you
+    please.
+    
+    https://ko-fi.com/meowlan
+    https://github.com/Meowlan
+]#
+
+@persist [PosL, PosR, DirL, DirR]:vector Distance Speed EyeGap EyeSize PupilSize
+
+Distance = 8.5 # Distance from center of eye to pupil
+Speed = 0.5 # Speed at wich the pupils rotate
+EyeGap = 95 # Gap between the two eyes
+EyeSize = 75 # Size of the eye
+PupilSize = 60 # Size of the pupil
+
+PosL = entity():toWorld(vec(0, -EyeGap, 0))
+PosR = entity():toWorld(vec(0, EyeGap, 0))
+
+DirL = vec(0)
+DirR = vec(0)
+
+holoCreate(1) # Eyeball L
+holoModel(1, "hq_sphere")
+holoPos(1, PosL)
+holoScaleUnits(1, vec(EyeSize))
+holoParent(1, entity())
+
+holoCreate(2) # pupil L
+holoModel(2, "hq_sphere")
+holoPos(2, PosL)
+holoScaleUnits(2, vec(PupilSize))
+holoColor(2, vec())
+holoParent(2, entity())
+
+holoCreate(3) # Eyeball R
+holoModel(3, "hq_sphere")
+holoPos(3, PosR)
+holoScaleUnits(3, vec(EyeSize))
+holoParent(3, entity())
+
+holoCreate(4) # pupil R
+holoModel(4, "hq_sphere")
+holoPos(4, PosR)
+holoScaleUnits(4, vec(PupilSize))
+holoColor(4, vec())
+holoParent(4, entity())
+
+function vector aim(Pos1:vector, Pos2:vector) {
+    return (Pos1 - Pos2):normalized()
+}
+
+event tick() {
+    PosL = entity():toWorld(vec(0, -EyeGap, 0))
+    PosR = entity():toWorld(vec(0, EyeGap, 0))
+    local PosM = entity():toWorld(vec(0, 0, 0))
+    
+    findByClass("player")
+    findSortByDistance(PosM)
+    
+    local P = findResult(1)
+    local TmpDirL = aim(P:shootPos(), PosL)
+    local TmpDirR = aim(P:shootPos(), PosR)
+    
+    DirL = (DirL + (TmpDirL * Speed)):normalized()
+    DirR = (DirR + (TmpDirR * Speed)):normalized()
+    
+    holoPos(2, PosL + (DirL * Distance))
+    holoPos(4, PosR + (DirR * Distance))
+}
