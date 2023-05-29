@@ -1,0 +1,183 @@
+@name slots v2
+
+#[ Simple slots egp 
+    Just a small slots e2 for demonstration purposes
+    
+    Feel free to use this code as you
+    please.
+    
+    https://ko-fi.com/meowlan
+    https://github.com/Meowlan
+]#
+
+@inputs EGP:wirelink USER:entity 
+@persist Values:table Cost Prices:array Colors:table
+
+Cost = 250000 
+
+Values = table(
+    "~" = 0.75, 
+    "#" = 1.2, 
+    "@" = 1.3, 
+    "?" = 0.9, 
+    "&" = 1.2, 
+    "$" = 2.3
+)
+
+Colors = table(
+    "background" = vec(300, 200, 200), 
+    "main" = vec(50, 100, 100), 
+    "textbg" = vec(300, 120, 120), 
+    "text" = vec(255), 
+    "button" = vec(150, 0, 200)
+)
+
+function vector color(Name:string) {
+    return Colors[Name, vector]
+}
+
+Prices = array(
+    0, 
+    1.2, 
+    2.5
+)
+
+function string number:toShortString() {
+    if (This >= 1000000000) {
+        return round(This / 1000000000, 1):toString() + "B"
+    } elseif (This >= 1000000) {
+        return round(This / 1000000, 1):toString() + "M"
+    } elseif (This >= 1000) {
+        return round(This / 1000, 1):toString() + "K"
+    } else {
+        return This:toString()
+    }
+}
+
+if((first() | dupefinished() | ~EGP) & ->EGP){
+    entity():createWire(EGP:entity(), "USER", "User")   
+    
+    EGP:egpClear()
+    
+    EGP:egpDrawTopLeft(0)
+    
+    #wallpaper   
+    EGP:egpBox(1, vec2(256), vec2(512))
+    EGP:egpColor(1, color("background"))
+      
+    #main      
+    EGP:egpRoundedBox(2, vec2(0), vec2(400, 350))
+    EGP:egpParent(2, 1)
+    EGP:egpColor(2, color("main"))
+   
+    #text background
+    EGP:egpRoundedBox(4, vec2(-125, -75), vec2(100, 120))
+    EGP:egpParent(4, 2)
+    EGP:egpColor(4, color("textbg"))
+
+    EGP:egpRoundedBox(5, vec2(0, -75), vec2(100, 120))
+    EGP:egpParent(5, 2)
+    EGP:egpColor(5, color("textbg"))
+ 
+    EGP:egpRoundedBox(6, vec2(125, -75), vec2(100, 120))
+    EGP:egpParent(6, 2)
+    EGP:egpColor(6, color("textbg"))
+    
+    #text
+    EGP:egpText(7, "1", vec2(0, 0))
+    EGP:egpParent(7, 4)
+    EGP:egpAlign(7, 1, 1)
+    EGP:egpColor(7, color("text"))
+    EGP:egpSize(7, 100)
+    
+    EGP:egpText(8, "2", vec2(0, 0))
+    EGP:egpParent(8, 5)
+    EGP:egpAlign(8, 1, 1)
+    EGP:egpColor(8, color("text"))
+    EGP:egpSize(8, 100)
+    
+    EGP:egpText(9, "3", vec2(0, 0))
+    EGP:egpParent(9, 6)
+    EGP:egpAlign(9, 1, 1)
+    EGP:egpColor(9, color("text"))
+    EGP:egpSize(9, 100)
+    
+    
+    #button      
+    EGP:egpRoundedBox(3, vec2(0, 75), vec2(350, 120))
+    EGP:egpParent(3, 2)
+    EGP:egpColor(3, color("button"))
+    
+    
+    EGP:egpText(10, format("Spin: $%s", Cost:toShortString()), vec2(0, 0))
+    EGP:egpAlign(10, 1, 1)
+    EGP:egpParent(10, 3)
+    EGP:egpColor(10, color("text"))
+    EGP:egpSize(10, 60)
+}
+
+function vector2 getParentPos(Index) {
+    local Parent = EGP:egpParent(Index)
+    local Pos = EGP:egpPos(Index)
+    while (Parent) {
+        Pos = Pos + EGP:egpPos(Parent)
+        Parent = EGP:egpParent(Parent)
+    }
+    
+    return Pos
+}
+
+function number button(Num, Cursor:vector2){
+    local Pos = getParentPos(Num)
+    return inrange(Cursor, Pos - (EGP:egpSize(Num) / 2), Pos + (EGP:egpSize(Num) / 2)) #Function for buttons.
+}
+
+function string table:random() {
+    return This:keys()[randint(1, This:count()), string] 
+}
+
+function number countUniqueStrings(Strings:array) {
+  local Count = 0
+  local UniqueStrings = table()
+
+  foreach (K, V:string = Strings) { 
+    if (!UniqueStrings:exists(V)) {
+      UniqueStrings[V, number] = 1
+      Count++
+    }
+  }
+
+  return (Strings:count() - Count) + 1
+}
+
+function spin(Player:entity) {
+    Slot1 = Values:random()
+    Slot2 = Values:random()
+    Slot3 = Values:random()
+    
+    local Equal = countUniqueStrings(array(Slot1, Slot2, Slot3))
+    local Mul = array(Values[Slot1, number], Values[Slot2, number], Values[Slot3, number]):average()
+    
+    local Price = Prices[Equal, number]
+
+    local Money = Cost * Price * Mul
+    
+    moneyGive(Player, Money)
+
+    EGP:egpText(7, Slot1, vec2(0, 0))
+    EGP:egpText(8, Slot2, vec2(0, 0))
+    EGP:egpText(9, Slot3, vec2(0, 0))
+}
+
+if (->USER & USER:isPlayer()) {
+    if (button(3, EGP:egpCursor(USER))) {
+        moneyRequest(USER, Cost, "Slots")
+    }
+}
+
+#Result
+if(moneyClk()) {
+    spin(moneyClkPlayer())
+    soundPlay(1, 2, "modernrewards/success.wav")
+}
+
