@@ -24,6 +24,20 @@ Values = table(
     "$" = 2.3
 )
 
+Prices = array(
+    0, # if non are equal the player gets nothing
+    1.2, # if 2 are the same the player gets 1.2
+    2.5 # if all 3 are the same the player gets 2.5
+)
+
+#[ math for the money output
+    Average * Price * Cost
+    
+    Average is the average of the current generated multipliers. So if all 3 symbols would be $ the average would be 2.3
+    Price is dependend on how many symbols are the same. (Line 27)
+    Cost is the cost specified to play on line 16
+]#
+
 Colors = table(
     "background" = vec(300, 200, 200), 
     "main" = vec(50, 100, 100), 
@@ -35,12 +49,6 @@ Colors = table(
 function vector color(Name:string) {
     return Colors[Name, vector]
 }
-
-Prices = array(
-    0, 
-    1.2, 
-    2.5
-)
 
 function string number:toShortString() {
     if (This >= 1000000000) {
