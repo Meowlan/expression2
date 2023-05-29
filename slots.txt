@@ -1,4 +1,4 @@
-@name slots v2
+@name slots
 
 #[ Simple slots egp 
     Just a small slots e2 for demonstration purposes
@@ -33,7 +33,7 @@ Prices = array(
 #[ math for the money output
     Average * Price * Cost
     
-    Average is the average of the current generated multipliers. So if all 3 symbols would be $ the average would be 2.3
+    Average is the average of the current generated multipliers. So if all 3 symbols would be $ the average would be 2.3. (Line 18)
     Price is dependend on how many symbols are the same. (Line 27)
     Cost is the cost specified to play on line 16
 ]#
