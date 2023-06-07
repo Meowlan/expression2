@@ -1,0 +1,51 @@
+@name Shaker
+
+#[ Meth Shaker
+    Automatically shakes jars for Meth Cook.
+    Supports multiple jars at once.
+    To toggle simply press e on the chip.
+    
+    Feel free to use this code as you
+    please.
+    
+    https://ko-fi.com/meowlan
+    https://github.com/Meowlan
+]#
+
+@persist ShakerActive Mul T Distance
+
+if (first() | duped()) {
+    ShakerActive = 0
+    Mul = 15
+    Distance = 15
+    T = 0
+}
+
+event tick() {
+    if (!ShakerActive) { exit() } 
+    
+    findClipToPlayerProps(owner())
+    findIncludeModel("models/props_lab/jar01a.mdl")
+    findInSphere(entity():pos(), 250)
+    
+    local Ents = findToArray()
+    local AngInc = 360 / Ents:count()
+    
+    foreach(I, E:entity = Ents) {
+        
+        local Pos = entity():toWorld(vec(sin((I * AngInc) + T) * Distance, cos((I * AngInc) + T) * Distance, 30))
+        local Angle = entity():angles()
+
+        E:applyForce( ( (Pos-E:pos())*Mul-E:vel() - propGravity()*tickInterval() )*E:mass() )
+        E:applyAngForce((E:toLocal(Angle)*200 - E:angVel()*20)*shiftL(ang(E:inertia())))    
+    }
+    
+    T+= 25
+}
+
+event chipUsed(E:entity) {
+    #if (E != owner()) {exit()}
+    
+    ShakerActive = !ShakerActive    
+}
+
