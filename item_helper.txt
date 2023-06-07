@@ -1,0 +1,65 @@
+@name item helper
+
+#[ Item helper
+    Orbits specified entities around the e2.
+    Makes manual labour easier for jobs like Meth Cook and retro miner.
+    
+    Feel free to use this code as you
+    please.
+    
+    https://ko-fi.com/meowlan
+    https://github.com/Meowlan
+]#
+
+@persist Mul Radius Classes:array
+
+if(first()|duped()){
+    Mul = 10
+    Radius = 35
+    
+    Classes = array(
+        "eml_water",
+        "eml_iodine",
+        "eml_macid",
+        "eml_sulfur"
+    )
+}
+
+event tick() {
+    if (!perf(1)) { exit() }
+    
+    foreach(I, Class:string = Classes) {
+        findIncludeClass(Class)
+    }
+
+    #findClipToPlayerProps(owner())
+
+    findInSphere(entity():pos(), 500)
+
+    local Items = table()
+    foreach(I, Ent:entity = findToArray()) {
+        if (!Items:exists(Ent:type())) { Items[Ent:type(), array] = array()}
+        
+        Items[Ent:type(), array]:pushEntity(Ent)
+    }
+
+    local Count = 1
+    
+    foreach(K, Ents:array = Items) {
+        local AngleIncrement = 360 / Ents:count()
+        
+        foreach(I, Ent:entity = Ents) {
+            local Angle = AngleIncrement * I
+            local TargetPos = entity():toWorld(vec(cos(Angle) * Radius, sin(Angle) * Radius, 25 * Count))
+            local TargetAng = entity():angles()
+            
+            local E = Ent
+            E:applyForce( ( (TargetPos-E:pos())*Mul-E:vel() - propGravity()*tickInterval() )*E:mass() )
+            E:applyAngForce((E:toLocal(TargetAng)*200 - E:angVel()*20)*shiftL(ang(E:inertia())))
+        }
+        
+        Count++
+    }
+}
+
+
