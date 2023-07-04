@@ -1,5 +1,19 @@
 @persist Font7x5:table
 
+#[ Fonts
+    I wanna die.
+    ffs if im going to add lowercase i 
+    will commit suicide. 
+
+    Please someone help me out.
+    
+    Feel free to use this code as you
+    please.
+    
+    https://ko-fi.com/meowlan
+    https://github.com/Meowlan
+]#
+
 Font7x5 = table()
 
 Font7x5["A", array] = array(
