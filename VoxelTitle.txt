@@ -268,6 +268,11 @@ event chat(Player:entity, Message:string, Length) {
         hideChat(1)
         
     } elseif (Args[1, string] == ">write" ) {
+        if (Write["status", number] == 1) {
+            print("Holograms still building! Please wait for it to finish.")
+            exit()    
+        }
+
         Args:removeString(1)
         local Message = Args:concat(" ")
         write(Message, vec(255), 0.5)
