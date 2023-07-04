@@ -8,6 +8,8 @@
     Use >write <text> to display something above
     your head. If something goes wrong you can
     run >reset or >init to reset/reinitialize it.
+
+    Make sure to also have fonts.txt downloaded.
     
     Feel free to use this code as you
     please.
