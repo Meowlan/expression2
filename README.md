@@ -1,4 +1,4 @@
-<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support Me on Ko-fi', '#29abe0', 'N4N7LMQVC');kofiwidget2.draw();</script> 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/N4N7LMQVC)
 ## A place for a bunch of e2 scripts made by me and friends
 
 Use "Meow's Git Installer" to easily install *any github repo
