@@ -2,5 +2,3 @@
 ## A place for a bunch of e2 scripts made by me
 
 Pretty much only spaghetti and jank code, dont bully me. :<
-
-###### *any supported github repo (the main file must be called main.txt and the e2 will only download .txt files)
