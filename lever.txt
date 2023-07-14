@@ -1,0 +1,66 @@
+#[ Lever
+    A minecraft style lever.
+    Outputs a value from 0 to 1.
+    
+    Feel free to use this code as you
+    please.
+    
+    https://ko-fi.com/meowlan
+    https://github.com/Meowlan
+]#
+
+@name Lever
+@persist PlayerStates:table Lever Last Range
+@outputs Percentage
+
+PlayerStates = table()
+Lever = 0
+Last = 0
+Range = 35
+
+holoCreate(1) # lever
+holoScaleUnits(1, vec(4, 4, 32))
+holoParent(1, entity())
+holoColor(1, vec(94, 59, 18))
+
+holoCreate(2) # lever top
+holoScaleUnits(2, vec(4, 4, 4))
+holoParent(2, 1)
+holoPos(2, entity():toWorld(vec(0, 0, 16 + 2)))
+holoColor(2, vec(100, 100, 100))
+
+holoCreate(3) # base
+holoScaleUnits(3, vec(12, 8, 4))
+holoParent(3, entity())
+holoPos(3, entity():toWorld(vec(0, 0, 2)))
+holoColor(3, vec(100, 100, 100))
+
+event chipUsed(Player:entity) {
+    PlayerStates[Player:id(), number] = 1
+}
+
+event keyPressed(Player:entity, Key:string, State:number, Bind:string) {
+    array(Key) # grrrr aws0me update wiremod you goon
+    
+    if (Bind == "use" & PlayerStates[Player:id(), number] & !State) {
+        PlayerStates[Player:id(), number] = 0
+            
+        Last = Lever
+    }
+}
+
+event tick() {
+    foreach(ID:number, State:number = PlayerStates) {
+        if (!State) { continue }
+        
+        local Player = entity(ID)
+        
+        Lever = entity():toLocal(Player:aimPos()):x() * 3
+        Lever = clamp(Lever + Last, -Range, Range)
+        #holoPos(1, entity():toWorld(vec(Lever, 0, 0)))
+        
+        holoAng(1, entity():toWorld(ang(Lever, 0, 0)))
+        
+        Percentage = (Lever + Range) / (Range * 2)
+    }
+}
