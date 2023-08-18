@@ -1,6 +1,6 @@
-@name pay.nt
+@name paint
 
-#[ pay.nt
+#[ paint
     Hook up a digital screen to it and draw.
     Type # in chat to pick a color of the pixel you are looking at.
     Type a hex color code with # in the chat to select that as your color.
@@ -14,10 +14,12 @@
 
 
 @inputs DS:wirelink
-@persist Res PixelSize:vector2 G:gtable
+@persist Res PixelSize:vector2 G:gtable Interactors:table Holders:table
 #include "digitalscreen"
 
-G = gTable("pay.nt")
+Res = 128
+
+G = gTable("paint")
 
 local T = G:toTable()
 
@@ -34,10 +36,11 @@ function number wirelink:getPixel(Pos:vector2) {
 }
 
 if ((first() | dupefinished() | ~DS) & ->DS) {
-    Res = 128
-    
     #DS:clear()
     DS:setColorMode(2)
+    
+    Interactors = table()
+    Holders = table()
     
     DS:setWidth(Res)
     DS:setHeight(Res)
@@ -51,8 +54,6 @@ if ((first() | dupefinished() | ~DS) & ->DS) {
     #holoAng(1, DS:entity():angles())
     #holoMaterial(1, "models/wireframe")
     #holoParent(1, DS:entity())
-    
-    
     
     for (I=1, Res) {
         DS:setPixel(vec2(Res - 2, I), hsv2rgb(360 * (I/Res), 1, 1))
@@ -111,7 +112,7 @@ function entity:pmE(String:string) {
     
     String = String:replace("\n", " ")
     
-    concmd(format("sam pm \"%s\" \"{white [Paint}:lower_left_paintbrush:{white ]} %s\"", This:steamID(), String))
+    concmd(format("sam pm \"%s\" \"{white [Paint}:lower_left_paintbrush:{white ]} %s\"", This:steamID64(), String))
 }
 
 function entity:pm(String:string) {
@@ -132,37 +133,62 @@ function entity:sendColor(Color:string) {
 }]#
 
 event chat(E:entity, S:string, N:number) {
+    array(N)
+    
     if (E:aimEntity() != DS:entity()) { exit() } 
     local Pos = round(worldToScreen(E:aimPos()):translateCoords()) 
     
-    if (!G["users", table]:exists(E:steamID())) {
-        G["users", table][E:steamID(), table] = table( "color" = vec(255))
+    if (!G["users", table]:exists(E:steamID64())) {
+        G["users", table][E:steamID64(), table] = table( "color" = vec(255))
     }
     
     if (S:sub(1, 1) == "#" & S:length() == 7) {
-        G["users", table][E:steamID(), table]["color", vector] = hex2rgb(S)
+        G["users", table][E:steamID64(), table]["color", vector] = hex2rgb(S)
         E:sendColor(S)
     } elseif (S:sub(1, 1) == "#" & S:length() == 1) {
         local Color = digi2rgb(DS:getPixel(Pos))
         local ColorS = rgb2hex(Color)
 
-        G["users", table][E:steamID(), table]["color", vector] = Color
+        G["users", table][E:steamID64(), table]["color", vector] = Color
         E:sendColor(ColorS)
     } elseif( S == "#who") {
         local String = G["pixels", table][Pos:toString(), string]
         E:pm(String:length() ? format("Pixel owned by %s", G["pixels", table][Pos:toString(), string]) : "Pixel not owned")
+    } elseif( S == "#vip") {
+        if (G["users", table][E:steamID64(), table]["vip", number]) {
+            E:pm("You already own vip!")
+            exit()
+        }
+        
+        moneyRequest(E, 500000, "[Paint] VIP")
+        
+    } elseif( S == "#?" | S == "#help") {
+        E:pm("Available commands:
+#    - Selects color you are looking at.
+#ffffff    - Selects specified hex color.
+#who    - Returns owner of pixel.
+#?    - Displays this page.
+#help    - Displays this page.
+#vip    - Buy vip for more features!")
     }
 }
 
 event keyPressed(E:entity, Key:string, State:number, Bind:string) {
-    if (!State) { exit() }
+    array(Key)
+    
     if (E:aimEntity() != DS:entity()) { exit() }
     if (E:pos():distance(entity():pos()) > 350) { exit() }
     
-    if(Bind == "use") {
+    if (State) {
+        Interactors[E:steamID64(), entity] = E
+    } else {
+        Interactors:unset(E:steamID64())
+    }
+    
+    if((Bind == "use" | Bind == "attack") & State) {
         local Pos = round(worldToScreen(E:aimPos()):translateCoords())
-        if (!G["users", table]:exists(E:steamID())) {
-            G["users", table][E:steamID(), table] = table( "color" = vec(255))
+        if (!G["users", table]:exists(E:steamID64())) {
+            G["users", table][E:steamID64(), table] = table( "color" = vec(255))
         }
         
         if (Pos:x() > Res - 3) {
@@ -176,21 +202,59 @@ event keyPressed(E:entity, Key:string, State:number, Bind:string) {
                 DS:setPixel(vec2(Res - 1, I), hsv2rgb(G["hue", number], 1, I / (Res / 2)))
             }
             
-            G["users", table][E:steamID(), table]["color", vector] = Color
+            G["users", table][E:steamID64(), table]["color", vector] = Color
             local ColorS = rgb2hex(Color)
             E:sendColor(ColorS)
             
         } else {
-            G["users", table][E:steamID(), table]["pos", vector2] = Pos
+            G["users", table][E:steamID64(), table]["pos", vector2] = Pos
             #moneyRequest(E, 1000, "1 Pixel $1k")
-            DS:setPixel(Pos, G["users", table][E:steamID(), table]["color", vector])
+            DS:setPixel(Pos, G["users", table][E:steamID64(), table]["color", vector])
             G["pixels", table][Pos:toString(), string] = E:name()
         }
     }    
 }
 
+event tick() {
+    foreach(SteamID:string, T:number = Holders) {
+        if (T > 1) {
+            Interactors[SteamID, entity]:pm("Would you like to be able to drag? Buy paint VIP for more featues! Type #vip while looking at the canvas.")
+            Holders[SteamID, number] = -5
+        }    
+    }
+    
+    foreach (SteamID:string, E:entity = Interactors) {
+        if (!(E:keyUse() | E:keyAttack1())) { exit() } 
+        
+        if (E:aimEntity() != DS:entity()) { continue }
+        if (E:pos():distance(entity():pos()) > 350) { continue }
+        
+        # check if player has vip
+        if (!G["users", table][E:steamID64(), table]["vip", number]) { 
+            Holders[E:steamID64(), number] = Holders[E:steamID64(), number] + tickInterval()
+            continue
+        }
+        
+        Holders:unset(E:steamID64())
+        
+        local Pos = round(worldToScreen(E:aimPos()):translateCoords())
+        
+        if (Pos:x() > Res - 3) { exit() }
+        
+        G["users", table][E:steamID64(), table]["pos", vector2] = Pos
+        DS:setPixel(Pos, G["users", table][E:steamID64(), table]["color", vector])
+        G["pixels", table][Pos:toString(), string] = E:name()
+    }
+}
+
 if (moneyClk()) {
+    local Title = moneyClkTitle()
     local E = moneyClkPlayer()
-    local Data = G["users", table][E:steamID(), table]
-    DS:setPixel(Data["pos", vector2], Data["color", vector])        
+    
+    if (Title == "[Paint] VIP") {
+        G["users", table][E:steamID64(), table]["vip", number] = 1    
+        E:pm("Succesfully bought vip!")
+    }
+    
+    #DS:setPixel(Data["pos", vector2], Data["color", vector]) 
 }
