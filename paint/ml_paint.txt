@@ -14,8 +14,16 @@
 
 
 @inputs DS:wirelink
-@persist Res PixelSize:vector2 Users:table Hue Pixels:table
+@persist Res PixelSize:vector2 G:gtable
 #include "digitalscreen"
+
+G = gTable("pay.nt")
+
+local T = G:toTable()
+
+if (!T:exists("users")) { G["users", table] = table()}
+if (!T:exists("pixels")) { G["pixels", table] = table()}
+if (!T:exists("hue")) { G["hue", number] = 0}
 
 function wirelink:setPixel(Pos:vector2, Color:vector) {
     This[(Pos:x() - 1) * Res + (Pos:y() - 1)] = rgb2digi(Color, 2)        
@@ -27,9 +35,6 @@ function number wirelink:getPixel(Pos:vector2) {
 
 if ((first() | dupefinished() | ~DS) & ->DS) {
     Res = 128
-    Users = table()
-    Pixels = table()
-    Hue = 0
     
     #DS:clear()
     DS:setColorMode(2)
@@ -55,8 +60,8 @@ if ((first() | dupefinished() | ~DS) & ->DS) {
     }
     
     for (I=1, Res / 2) {
-        DS:setPixel(vec2(Res - 1, I + (Res / 2)), hsv2rgb(Hue, 1 - (I / (Res / 2)), 1))
-        DS:setPixel(vec2(Res - 1, I), hsv2rgb(Hue, 1, I / (Res / 2)))
+        DS:setPixel(vec2(Res - 1, I + (Res / 2)), hsv2rgb(G["hue", number], 1 - (I / (Res / 2)), 1))
+        DS:setPixel(vec2(Res - 1, I), hsv2rgb(G["hue", number], 1, I / (Res / 2)))
     }
 }
 
@@ -130,22 +135,22 @@ event chat(E:entity, S:string, N:number) {
     if (E:aimEntity() != DS:entity()) { exit() } 
     local Pos = round(worldToScreen(E:aimPos()):translateCoords()) 
     
-    if (!Users:exists(E:steamID())) {
-        Users[E:steamID(), table] = table( "color" = vec(255))
+    if (!G["users", table]:exists(E:steamID())) {
+        G["users", table][E:steamID(), table] = table( "color" = vec(255))
     }
     
     if (S:sub(1, 1) == "#" & S:length() == 7) {
-        Users[E:steamID(), table]["color", vector] = hex2rgb(S)
+        G["users", table][E:steamID(), table]["color", vector] = hex2rgb(S)
         E:sendColor(S)
     } elseif (S:sub(1, 1) == "#" & S:length() == 1) {
         local Color = digi2rgb(DS:getPixel(Pos))
         local ColorS = rgb2hex(Color)
 
-        Users[E:steamID(), table]["color", vector] = Color
+        G["users", table][E:steamID(), table]["color", vector] = Color
         E:sendColor(ColorS)
     } elseif( S == "#who") {
-        local String = Pixels[Pos:toString(), string]
-        E:pm(String:length() ? format("Pixel owned by %s", Pixels[Pos:toString(), string]) : "Pixel not owned")
+        local String = G["pixels", table][Pos:toString(), string]
+        E:pm(String:length() ? format("Pixel owned by %s", G["pixels", table][Pos:toString(), string]) : "Pixel not owned")
     }
 }
 
@@ -156,36 +161,36 @@ event keyPressed(E:entity, Key:string, State:number, Bind:string) {
     
     if(Bind == "use") {
         local Pos = round(worldToScreen(E:aimPos()):translateCoords())
-        if (!Users:exists(E:steamID())) {
-            Users[E:steamID(), table] = table( "color" = vec(255))
+        if (!G["users", table]:exists(E:steamID())) {
+            G["users", table][E:steamID(), table] = table( "color" = vec(255))
         }
         
         if (Pos:x() > Res - 3) {
             local Color = digi2rgb(DS:getPixel(Pos))
             local HSV = rgb2hsv(Color)
             
-            Hue = HSV:x()
+            G["hue", number] = HSV:x()
             
             for (I=1, Res / 2) {
-                DS:setPixel(vec2(Res - 1, I + (Res / 2)), hsv2rgb(Hue, 1 - (I / (Res / 2)), 1))
-                DS:setPixel(vec2(Res - 1, I), hsv2rgb(Hue, 1, I / (Res / 2)))
+                DS:setPixel(vec2(Res - 1, I + (Res / 2)), hsv2rgb(G["hue", number], 1 - (I / (Res / 2)), 1))
+                DS:setPixel(vec2(Res - 1, I), hsv2rgb(G["hue", number], 1, I / (Res / 2)))
             }
             
-            Users[E:steamID(), table]["color", vector] = Color
+            G["users", table][E:steamID(), table]["color", vector] = Color
             local ColorS = rgb2hex(Color)
             E:sendColor(ColorS)
             
         } else {
-            Users[E:steamID(), table]["pos", vector2] = Pos
+            G["users", table][E:steamID(), table]["pos", vector2] = Pos
             #moneyRequest(E, 1000, "1 Pixel $1k")
-            DS:setPixel(Pos, Users[E:steamID(), table]["color", vector])
-            Pixels[Pos:toString(), string] = E:name()
+            DS:setPixel(Pos, G["users", table][E:steamID(), table]["color", vector])
+            G["pixels", table][Pos:toString(), string] = E:name()
         }
     }    
 }
 
 if (moneyClk()) {
     local E = moneyClkPlayer()
-    local Data = Users[E:steamID(), table]
+    local Data = G["users", table][E:steamID(), table]
     DS:setPixel(Data["pos", vector2], Data["color", vector])        
 }
