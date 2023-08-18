@@ -185,7 +185,7 @@ event keyPressed(E:entity, Key:string, State:number, Bind:string) {
         Interactors:unset(E:steamID64())
     }
     
-    if((Bind == "use" | Bind == "attack") & State) {
+    if((Bind == "use") & State) {
         local Pos = round(worldToScreen(E:aimPos()):translateCoords())
         if (!G["users", table]:exists(E:steamID64())) {
             G["users", table][E:steamID64(), table] = table( "color" = vec(255))
@@ -224,7 +224,7 @@ event tick() {
     }
     
     foreach (SteamID:string, E:entity = Interactors) {
-        if (!(E:keyUse() | E:keyAttack1())) { exit() } 
+        if (!E:keyUse()) { exit() } 
         
         if (E:aimEntity() != DS:entity()) { continue }
         if (E:pos():distance(entity():pos()) > 350) { continue }
