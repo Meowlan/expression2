@@ -1,6 +1,6 @@
-@name ml paint
+@name pay.nt
 
-#[ ml paint
+#[ pay.nt
     Hook up a digital screen to it and draw.
     Type # in chat to pick a color of the pixel you are looking at.
     Type a hex color code with # in the chat to select that as your color.
@@ -15,7 +15,7 @@
 
 @inputs DS:wirelink
 @persist Res PixelSize:vector2 Users:table Hue Pixels:table
-#include "paint/digitalscreen"
+#include "digitalscreen"
 
 function wirelink:setPixel(Pos:vector2, Color:vector) {
     This[(Pos:x() - 1) * Res + (Pos:y() - 1)] = rgb2digi(Color, 2)        
@@ -82,6 +82,7 @@ function string rgb2hex(Color:vector) {
 
 function vector hex2rgb(Color:string) {
     if (Color:length() != 7) { exit() }
+    Color = Color:upper()
     
     local R = Color:sub(2, 3):toNumber(16)
     local G = Color:sub(4, 5):toNumber(16)
@@ -97,13 +98,23 @@ function vector digi2rgb(Color:number) {
     return vec(R, G, B)
 }
 
-function entity:pm(String:string) {
+function entity:pmE(String:string) {
     if (This == owner() | !This:isValid()) {
         print(String)
         return    
     }
     
-    concmd(format("sam pm \"%s\" \"%s\"", This:steamID(), String:replace("\n", " ")))
+    String = String:replace("\n", " ")
+    
+    concmd(format("sam pm \"%s\" \"{white [Paint}:lower_left_paintbrush:{white ]} %s\"", This:steamID(), String))
+}
+
+function entity:pm(String:string) {
+    This:pmE(format("{white %s}", String))
+}
+
+function entity:sendColor(Color:string) {
+    This:pmE(format("{%s %s %s}", Color, toUnicodeChar(9608):repeat(5), Color))
 }
 
 #[event tick() {
@@ -125,15 +136,16 @@ event chat(E:entity, S:string, N:number) {
     
     if (S:sub(1, 1) == "#" & S:length() == 7) {
         Users[E:steamID(), table]["color", vector] = hex2rgb(S)
-        E:pm(format("{%s %s} %s", S, toUnicodeChar(9608):repeat(5), S))
-    } elseif (S:sub(1, 1) == "#") {
+        E:sendColor(S)
+    } elseif (S:sub(1, 1) == "#" & S:length() == 1) {
         local Color = digi2rgb(DS:getPixel(Pos))
+        local ColorS = rgb2hex(Color)
 
         Users[E:steamID(), table]["color", vector] = Color
-        E:pm(format("{%s %s} %s", rgb2hex(Color), toUnicodeChar(9608):repeat(5), rgb2hex(Color)))
-    } elseif( S == "who") {
+        E:sendColor(ColorS)
+    } elseif( S == "#who") {
         local String = Pixels[Pos:toString(), string]
-        E:pm(String:length() ? Pixels[Pos:toString(), string] : "Pixel not owned")    
+        E:pm(String:length() ? format("Pixel owned by %s", Pixels[Pos:toString(), string]) : "Pixel not owned")
     }
 }
 
@@ -160,7 +172,8 @@ event keyPressed(E:entity, Key:string, State:number, Bind:string) {
             }
             
             Users[E:steamID(), table]["color", vector] = Color
-            E:pm(format("{%s %s} %s", rgb2hex(Color), toUnicodeChar(9608):repeat(5), rgb2hex(Color)))
+            local ColorS = rgb2hex(Color)
+            E:sendColor(ColorS)
             
         } else {
             Users[E:steamID(), table]["pos", vector2] = Pos
