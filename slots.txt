@@ -5,6 +5,9 @@
     
     Feel free to use this code as you
     please.
+    (you can open this editor by pressing . on github)
+    blah blah blah
+    credits: kommie, meowlan
     
     https://ko-fi.com/meowlan
     https://github.com/Meowlan
