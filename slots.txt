@@ -1,11 +1,12 @@
-@name slots
+@name slots v2
 
 #[ Simple slots egp 
     Just a small slots e2 for demonstration purposes
     
     Feel free to use this code as you
     please.
-    
+    Credits: Meowlan, Kommie
+
     https://ko-fi.com/meowlan
     https://github.com/Meowlan
 ]#
@@ -13,15 +14,15 @@
 @inputs EGP:wirelink USER:entity 
 @persist Values:table Cost Prices:array Colors:table
 
-Cost = 250000 
+Cost = 25000 
 
 Values = table(
-    "~" = 0.75, 
-    "#" = 1.2, 
-    "@" = 1.3, 
-    "?" = 0.9, 
-    "&" = 1.2, 
-    "$" = 2.3
+    "~" = 0.6, 
+    "#" = 1.0, 
+    "@" = 1.1, 
+    "?" = 0.8, 
+    "&" = 1.1, 
+    "$" = 1.6
 )
 
 Prices = array(
@@ -74,7 +75,7 @@ if((first() | dupefinished() | ~EGP) & ->EGP){
     EGP:egpColor(1, color("background"))
       
     #main      
-    EGP:egpRoundedBox(2, vec2(0), vec2(400, 350))
+    EGP:egpRoundedBox(2, vec2(0, -85), vec2(400, 320))
     EGP:egpParent(2, 1)
     EGP:egpColor(2, color("main"))
    
@@ -122,6 +123,128 @@ if((first() | dupefinished() | ~EGP) & ->EGP){
     EGP:egpParent(10, 3)
     EGP:egpColor(10, color("text"))
     EGP:egpSize(10, 60)
+    
+    #instructions and rates
+    
+    #main2
+    EGP:egpRoundedBox(12, vec2(0, 165), vec2(400, 165))
+    EGP:egpParent(12, 1)
+    EGP:egpColor(12, color("main"))
+    
+    #instructions text
+    EGP:egpText(13, "INSTRUCTIONS:", vec2(-105,-70))
+    EGP:egpAlign(13, 1, 1)
+    EGP:egpParent(13, 12)
+    EGP:egpSize(13, 22.5)
+    
+    EGP:egpText(14, "Press spin and", vec2(-100,-53))
+    EGP:egpAlign(14, 1, 1)
+    EGP:egpParent(14, 12)
+    EGP:egpSize(14, 15)
+    
+    EGP:egpText(15, "match 2 or 3 symbols", vec2(-100,-41))
+    EGP:egpAlign(15, 1, 1)
+    EGP:egpParent(15, 12)
+    EGP:egpSize(15, 15)
+    
+    EGP:egpText(16, "to earn a reward", vec2(-100,-30))
+    EGP:egpAlign(16, 1, 1)
+    EGP:egpParent(16, 12)
+    EGP:egpSize(16, 15)
+    
+    EGP:egpText(17, "Math for the money output:", vec2(-100,-15))
+    EGP:egpAlign(17, 1, 1)
+    EGP:egpParent(17, 12)
+    EGP:egpSize(17, 15)
+    
+    EGP:egpText(18, "Average * Price * Cost", vec2(-100,-3))
+    EGP:egpAlign(18, 1, 1)
+    EGP:egpParent(18, 12)
+    EGP:egpSize(18, 15)
+    
+    EGP:egpText(19, "Average is the average of the", vec2(-100,38))
+    EGP:egpAlign(19, 1, 1)
+    EGP:egpParent(19, 12)
+    EGP:egpSize(19, 15)
+    
+    EGP:egpText(20, "current generated multipliers.", vec2(-100,50))
+    EGP:egpAlign(20, 1, 1)
+    EGP:egpParent(20, 12)
+    EGP:egpSize(20, 15)
+    
+    EGP:egpText(21, "Price is dependend on how", vec2(-100,61))
+    EGP:egpAlign(21, 1, 1)
+    EGP:egpParent(21, 12)
+    EGP:egpSize(21, 15)
+    
+    EGP:egpText(22, "many symbols are the same.", vec2(-100,72))
+    EGP:egpAlign(22, 1, 1)
+    EGP:egpParent(22, 12)
+    EGP:egpSize(22, 15)
+    
+    EGP:egpText(23, "Math for average:", vec2(-100,11))
+    EGP:egpAlign(23, 1, 1)
+    EGP:egpParent(23, 12)
+    EGP:egpSize(23, 15)
+    
+    EGP:egpText(24, "(X*Y*Z)/3", vec2(-100,23))
+    EGP:egpAlign(24, 1, 1)
+    EGP:egpParent(24, 12)
+    EGP:egpSize(24, 15)
+    
+    #rates text
+    
+    EGP:egpText(26, "RATES:", vec2(30,-55))
+    EGP:egpAlign(26, 1, 1)
+    EGP:egpParent(26, 12)
+    EGP:egpSize(26, 22.5)
+    
+    EGP:egpText(27, "~ = 0.6", vec2(124,-67))
+    EGP:egpAlign(27, 1, 1)
+    EGP:egpParent(27, 12)
+    EGP:egpSize(27, 15)
+    
+    EGP:egpText(28, "? = 0.8", vec2(126,-51))
+    EGP:egpAlign(28, 1, 1)
+    EGP:egpParent(28, 12)
+    EGP:egpSize(28, 15)
+    
+    EGP:egpText(29, "# = 1.0", vec2(125,-35))
+    EGP:egpAlign(29, 1, 1)
+    EGP:egpParent(29, 12)
+    EGP:egpSize(29, 15)
+    
+    EGP:egpText(30, "@ = 1.1", vec2(124,-19))
+    EGP:egpAlign(30, 1, 1)
+    EGP:egpParent(30, 12)
+    EGP:egpSize(30, 15)
+    
+    EGP:egpText(31, "& = 1.1", vec2(125,-3))
+    EGP:egpAlign(31, 1, 1)
+    EGP:egpParent(31, 12)
+    EGP:egpSize(31, 15)
+    
+    EGP:egpText(32, "$ = 1.6", vec2(125,13))
+    EGP:egpAlign(32, 1, 1)
+    EGP:egpParent(32, 12)
+    EGP:egpSize(32, 15)
+    
+    EGP:egpText(33, "0 matched = 0.0", vec2(110,33))
+    EGP:egpAlign(33, 1, 1)
+    EGP:egpParent(33, 12)
+    EGP:egpSize(33, 15)
+    
+    EGP:egpText(34, "2 matched = 1.2", vec2(110,50))
+    EGP:egpAlign(34, 1, 1)
+    EGP:egpParent(34, 12)
+    EGP:egpSize(34, 15)
+    
+    EGP:egpText(35, "3 matched = 2.5", vec2(110,67))
+    EGP:egpAlign(35, 1, 1)
+    EGP:egpParent(35, 12)
+    EGP:egpSize(35, 15)
+    
+
 }
 
 function vector2 getParentPos(Index) {
@@ -188,4 +311,3 @@ if(moneyClk()) {
     spin(moneyClkPlayer())
     soundPlay(1, 2, "modernrewards/success.wav")
 }
-
