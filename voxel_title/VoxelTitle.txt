@@ -1,0 +1,288 @@
+@name VoxelTitle
+@persist Write:table CurPos:vector
+
+#[ VoxelTitle
+    Draws a title using Voxels above your head.
+    Make sure you dont have any other holograms 
+    placed down or it will most likely break.
+    Use >write <text> to display something above
+    your head. If something goes wrong you can
+    run >reset or >init to reset/reinitialize it.
+
+    Make sure to also have fonts.txt downloaded.
+    
+    Feel free to use this code as you
+    please.
+    
+    https://ko-fi.com/meowlan
+    https://github.com/Meowlan
+]#
+
+# debug outputs
+# @outputs Dstatus Dcursor Dcharindex Dresetindex Dwriteindex Dstring:array Dtext:string DColor:vector 
+
+#include "fonts"
+
+if (first() | dupefinished()) {
+    Write = table()
+    CurPos = entity():pos()
+}
+
+function number index() { # returns an available holo index
+    return holoAmount() + 1
+}
+
+function vector2 numToCoords(I, MaxX) { # convert index to position
+    local Y = floor((I - 1) / MaxX)
+    local X = (I - 1) % MaxX
+    return vec2(X, Y)
+}
+
+function number countStringHolos(String:string) { # Get the ammount of holograms needed for string
+    local Sum = 0
+    
+    foreach( I, Char:string = String:upper():explode("")) { # for each character in the string
+        local CharObj = Font7x5[Char, array]
+        
+        Sum+= CharObj:sum()
+    }
+    
+    return Sum
+}
+
+function writeFail(Reason:string) {
+    Write["status", number] = -1
+    print(format("Write failed! Reason: %s", Reason))
+}
+
+function getChar() {
+        local Cursor = Write["cursor", number]
+        local Char = Write["string", array][Cursor, string]
+        local CharObj = Font7x5[Char, array]
+        
+        Write["char", array] = CharObj
+        Write["charindex", number] = 1
+}
+
+function handleSetup() {
+    while (holoCanCreate() & perf() & holoAmount() < holoMaxAmount()) {
+        holoCreate(index())
+        holoShadow(index() - 1, 0)
+        holoDisableShading(index() - 1, 1)
+        holoMaterial(index() - 1, "zerochain/props_mining/crusher/zrms_crusher_lamp")
+        holoParent(index() - 1, world())
+        holoScaleUnits(index() - 1, vec(1))
+        holoPos(index() - 1, entity():toWorld(vec(0, 0, index() - 1)))
+        holoAng(index() - 1, ang())
+        holoAlpha(index() - 1, 0)
+    }
+
+    if (holoAmount() == holoMaxAmount()) {
+        Write["status", number] = 2
+    }
+}
+
+function handleReset() {
+    while (perf()) {
+        local Index = Write["resetindex", number]
+        
+        holoPos(Index, entity():toWorld(vec(0, 0, Index - 1)))
+        holoParent(Index, world())
+        holoScaleUnits(Index, vec(1))
+        holoAlpha(Index, 0)
+        
+        if (Index >= holoMaxAmount()) {
+            Write["cursor", number] = 0
+    
+            Write["char", array ] = array()
+            Write["charindex", number ] = 1
+            Write["resetindex", number ] = 1
+            Write["writeindex", number ] = 2
+    
+            Write["status", number] = 2
+            break
+        }
+        
+        Write["resetindex", number] = Index + 1
+    }    
+}
+
+function handleWrite() {
+    local Cursor = Write["cursor", number]
+    
+    local Pos = Write["pos", vector]
+    local Size = Write["size", vector] 
+    local Ang = Write["ang", angle]
+    local Color = Write["color", vector]
+    local Length = Write["text", string]:length()
+    
+    while (perf()) {        
+        local CharIndex = Write["charindex", number]
+        
+        if (CharIndex > 35) {
+            Write["cursor", number] = Cursor + 1
+            getChar()
+            
+            break
+        }
+        
+        if (Cursor > Length) {
+            Write["status", number] = 3
+            return
+        }
+        
+        local Bit = Write["char", array][CharIndex, number]
+        
+        if (Bit) {
+            local BitPos = numToCoords(CharIndex, 5)
+            local Index = Write["writeindex", number ]
+            
+            CharPos2d = vec2((BitPos:x() + 6 * (Cursor - 1 - (Length / 2))) * Size:x(), ((-1 * BitPos:y()) + 6) * Size:z())
+            CharPos = vec(CharPos2d:x(), 0, CharPos2d:y()):rotate(Ang)
+            
+            holoParent(Index, 1)
+            holoPos(Index, CharPos + Pos)
+            holoScaleUnits(Index, Size)
+            holoAng(Index, Ang)
+            holoColor(Index, Color)
+            holoAlpha(Index, 255)
+            
+            Write["writeindex", number ] = Index + 1
+        }
+        
+        Write["charindex", number] = CharIndex + 1
+    }
+}
+
+function handleAnimation() {
+    CurPos += (owner():shootPos() - holoEntity(1):pos()) * 0.2
+    holoPos(1, CurPos)
+    holoAng(1, ang(0, curtime() * 15, 0))
+    local WriteIndex = Write["writeindex", number]
+    
+    if (perf(10)) {
+        local Point = vec(1, 0, 0)
+        for (I=2, WriteIndex) {
+            local Pos = holoEntity(1):toLocal(holoEntity(I):pos()) - vec(100, 0, 0)
+            local Color = hsv2rgb(Pos:length() * 2.5 + (curtime() * 15) % 360, 1, 1)
+            holoColor(I, Color)
+            
+        }
+    }
+}
+
+function init() {
+    holoDeleteAll()
+    
+    holoCreate(1)
+    holoMaterial(1, "models/wireframe")
+    holoAlpha(1, 0)
+    holoParent(1, world())
+    holoAng(1, ang())
+    
+    Write = table()
+    
+    Write["text", string] = "Hello"
+    
+    Write["pos", vector] = entity():pos() + vec(0, 0, 10)
+    Write["size", vector] = vec(0.5)
+    Write["color", vector] = vec(255)
+    
+    # internal #
+    
+    Write["string", array ] = Write["text", string ]:upper():explode("")
+    
+    Write["cursor", number] = 1
+    
+    Write["char", array ] = array()
+    Write["charindex", number ] = 1
+    Write["resetindex", number ] = 1
+    Write["writeindex", number ] = 2
+    
+    Write["status", number] = 1
+    
+    getChar()
+}
+
+function write(Message:string, Color:vector, Size) {
+    if (Message:length() > 250) { print("string too long!") return }
+    if (countStringHolos(Message) > holoMaxAmount()) { print("not enough holograms!") return }
+    
+    Write["text", string] = Message
+    Write["string", array ] = Message:upper():explode("")
+    
+    Write["size", vector] = vec(Size)
+    Write["color", vector] = Color
+    Write["status", number] = 4
+}
+
+if (first()) {
+    init()
+}
+
+event tick() {
+    if (Write:count() == 0) { exit() }
+    
+    if (Write["status", number] == 1) { #setup
+        handleSetup() 
+        setName(format("VoxelTitle [Building: %0.2f%%]", (holoAmount() / holoMaxAmount()) * 100 ))
+        
+    } elseif (Write["status", number] == 2) { #writing
+        handleWrite() 
+        
+        local Length = Write["text", string]:length()
+        local Cursor = Write["cursor", number]
+        setName(format("VoxelTitle [Writing: %0.2f%%]", (Cursor / Length) * 100 ))
+        
+    } elseif (Write["status", number] == 3) { # animating
+        handleAnimation() 
+        
+        setName(format("VoxelTitle [Animating]"))
+        
+    } elseif (Write["status", number] == 4) { # reset
+        handleReset() 
+        
+        local Index = Write["resetindex", number]
+        local Holos = holoAmount()
+        setName(format("VoxelTitle [Resetting: %0.2f%%]", (Index / Holos) * 100 ))
+    }
+    
+    # debugging
+    #Dstatus = Write["status", number]
+    #Dcursor = Write["cursor", number]
+    #Dcharindex = Write["charindex", number]
+    #Dresetindex = Write["resetindex", number]
+    #Dwriteindex = Write["writeindex", number]
+    #Dstring = Write["string", array]
+    #Dtext = Write["text", string]
+}
+
+event chat(Player:entity, Message:string, Length) {
+    array(Length)
+    if (Player != owner()) { exit() }
+    
+    local Args = Message:lower():explode(" ")
+    
+    if (Args[1, string] == ">reset") {
+        Write["status", number] = 4
+        hideChat(1)
+        
+    } elseif (Args[1, string] == ">write" ) {
+        if (Write["status", number] == 1) {
+            print("Holograms still building! Please wait for it to finish.")
+            exit()    
+        }
+
+        Args:removeString(1)
+        local Message = Args:concat(" ")
+        write(Message, vec(255), 0.5)
+        hideChat(1)
+        
+    } elseif (Args[1, string] == ">init") { # only use if init failed
+        init()
+        hideChat(1)
+        
+    }
+}
+
+event removed(N) { array(N) holoDeleteAll()}

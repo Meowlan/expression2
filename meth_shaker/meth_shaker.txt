@@ -15,7 +15,7 @@
 @persist ShakerActive Mul T Distance
 
 if (first() | duped()) {
-    ShakerActive = 0
+    ShakerActive = 1
     Mul = 15
     Distance = 15
     T = 0

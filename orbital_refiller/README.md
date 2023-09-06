@@ -1,4 +1,4 @@
-# do not use this! shit code, shit performance, but very good at lagging the server ;)
+# do not use this! shit code, shit performance, but looks cool and is very good at lagging the server ;)
 
 Lets your ncrp printers orbit around the chip and auto refills them.
 To add a printer type ;add in the chat
@@ -15,6 +15,7 @@ Some useful chat commands:
 - ;reset
 - ;config number Radius 50
 - ;config number MaxRange 50
+(look in config.txt for all possible variables)
 
 if the e2 is crashing because of tick quota exceed try lowering the MaxPerf config value.
 
