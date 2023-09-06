@@ -1,0 +1,12 @@
+{
+    "package":{
+        "name":"Orbital Refiller",
+        "description":"A fancy looking, laggy, badly written, automatic printer collector and refiller.",
+        "files": [
+            "config.txt"
+            "orbital_refiller.txt"
+        ],
+        "main": "orbital_refiller.txt",
+        "dependencies":[]  
+    }
+ }

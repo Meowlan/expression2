@@ -1,0 +1,15 @@
+{
+    "package":{
+        "name":"Printer Master",
+        "description":"A janky, automatic printer refiller and collector.",
+        "files": [
+            "egp.txt",
+            "language.txt",
+            "lib.txt",
+            "printer_master.txt",
+            "themes.txt"
+        ],
+        "main": "printer_master.txt",
+        "dependencies":[]  
+    }
+ }

@@ -1,0 +1,12 @@
+{
+    "package":{
+        "name":"Paint🖌",
+        "description":"A canvas for everyone to paint on!",
+        "files": [
+            "digitalscreen.txt",
+            "paint.txt"
+        ],
+        "main": "paint.txt",
+        "dependencies":[]  
+    }
+ }

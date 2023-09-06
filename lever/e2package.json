@@ -1,0 +1,11 @@
+{
+    "package":{
+        "name":"Lever",
+        "description":"A minecraft style, analog lever.",
+        "files": [
+            "lever.txt"
+        ],
+        "main": "lever.txt",
+        "dependencies":[]  
+    }
+ }

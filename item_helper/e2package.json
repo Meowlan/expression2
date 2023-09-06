@@ -1,0 +1,11 @@
+{
+    "package":{
+        "name":"Item Helper",
+        "description":"Enables specified entities to levitate conveniently.",
+        "files": [
+            "item_helper.txt"
+        ],
+        "main": "item_helper.txt",
+        "dependencies":[]  
+    }
+ }

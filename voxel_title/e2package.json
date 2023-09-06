@@ -1,0 +1,13 @@
+{
+    "package":{
+        "name":"Voxel Title",
+        "description":"Customizble titles made out of voxels.",
+        "files": [
+            "VoxelTitle.txt"
+        ],
+        "main": "VoxelTitle.txt",
+        "dependencies":[
+            "fonts"
+        ]
+    }
+ }

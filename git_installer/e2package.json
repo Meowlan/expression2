@@ -1,0 +1,11 @@
+{
+    "package":{
+        "name":"legacy git installer",
+        "description":"An automatic way to install stuff from this repository. deprecated",
+        "files": [
+            "git_installer.txt"
+        ],
+        "main": "git_installer.txt",
+        "dependencies":[]  
+    }
+ }

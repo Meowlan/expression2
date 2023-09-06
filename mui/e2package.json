@@ -1,0 +1,11 @@
+{
+    "package":{
+        "name":"mui",
+        "description":"A general purpose, object oriented ui library for egp",
+        "files": [
+            "mui.txt"
+        ],
+        "main": "mui.txt",
+        "dependencies":[]  
+    }
+ }

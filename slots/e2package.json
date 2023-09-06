@@ -1,0 +1,11 @@
+{
+    "package":{
+        "name":"Slots💸",
+        "description":"A basic slot machine.",
+        "files": [
+            "slots.txt"
+        ],
+        "main": "slots.txt",
+        "dependencies":[]  
+    }
+ }

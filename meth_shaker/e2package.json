@@ -1,0 +1,11 @@
+{
+    "package":{
+        "name":"Meth Shaker",
+        "description":"Shakes jars automatically in a neat way.",
+        "files": [
+            "meth_shaker.txt"
+        ],
+        "main": "meth_shaker.txt",
+        "dependencies":[]  
+    }
+ }

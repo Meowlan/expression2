@@ -1,0 +1,11 @@
+{
+    "package":{
+        "name":"fonts",
+        "description":"A library including fonts.",
+        "files": [
+            "fonts.txt"
+        ],
+        "main": "fonts.txt",
+        "dependencies":[]  
+    }
+ }

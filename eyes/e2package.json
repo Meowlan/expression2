@@ -1,0 +1,11 @@
+{
+    "package":{
+        "name":"Eyes!👀",
+        "description":"A pair of eyes wich mysteriously follow the closest player👀",
+        "files": [
+            "eyes.txt"
+        ],
+        "main": "eyes.txt",
+        "dependencies":[]  
+    }
+ }

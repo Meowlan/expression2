@@ -1,0 +1,12 @@
+{
+    "package":{
+        "name":"Money Overview",
+        "description":"Displays useful information about your money.",
+        "files": [
+            "money_overview.txt"
+            "themes.txt"
+        ],
+        "main": "money_overview.txt",
+        "dependencies":[]  
+    }
+ }
