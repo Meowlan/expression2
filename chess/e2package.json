@@ -1,0 +1,11 @@
+{
+    "package":{
+        "name":"Chess♟",
+        "description":"A basic chess implenmentation using holograms",
+        "files": [
+            "chess.txt"
+        ],
+        "main": "chess.txt",
+        "dependencies":[]  
+    }
+ }

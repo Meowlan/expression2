@@ -1,0 +1,304 @@
+@name Chess
+@persist HoloQueueIndex HoloAmount HoloQueueComplete # holo queue stuff
+@persist White:vector4 Black:vector4 Material:string # Cosmetics
+@persist Scale [Piece PieceTypeFromSymbol]:table [PiecesBlack PiecesWhite]:array # piece data
+@persist Squares:table #WhiteToMove # board data
+@persist Masks:table DrawPieces StartFen:string
+@persist SelectedPiece Selector:entity
+@strict 1
+
+#[ Chess
+    A basic chess e2.
+    Still gotta work on move restrictions
+    Supports ForsythEdwards Notation (fen)
+
+    Feel free to use and modify this code. 
+    You are not allowed to resell this e2 without permission.
+    
+    https://ko-fi.com/meowlan
+    https://github.com/Meowlan
+]#
+
+Scale = 4 # scale of the board (4 fits a normal round table)
+
+White = vec4(207, 168, 120, 255) # color of the white tiles
+Black = vec4(105, 66, 37, 255) # color of the black tiles
+Material = "models/props_pipes/GutterMetal01a" # material of the tiles
+
+StartFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" # Start piece position
+
+HoloQueueIndex = 1
+HoloAmount = 128 + 2
+HoloQueueComplete = 0
+
+SelectedPiece = 0
+Selector = noentity()
+
+Piece = table(
+    "None" = 0,
+    "King" = 1,
+    "Pawn" = 2,
+    "Knight" = 3,
+    "Bishop" = 4,
+    "Rook" = 5,
+    "Queen" = 6,
+    
+    "White" = 8,
+    "Black" = 16   
+)
+
+Masks = table(
+    "typeMask" = 0b00111, # 7
+    "blackMask" = 0b10000, # 8
+    "whiteMask" = 0b01000 # 16
+)
+Masks["colourMask", number] = Masks["whiteMask", number] || Masks["blackMask", number] # 24
+
+PiecesBlack = array(
+    "models/props_phx/games/chess/black_king.mdl",
+    "models/props_phx/games/chess/black_pawn.mdl",
+    "models/props_phx/games/chess/black_knight.mdl",
+    "models/props_phx/games/chess/black_bishop.mdl",
+    "models/props_phx/games/chess/black_rook.mdl",
+    "models/props_phx/games/chess/black_queen.mdl"
+)
+
+PiecesWhite = array(
+    "models/props_phx/games/chess/white_king.mdl",
+    "models/props_phx/games/chess/white_pawn.mdl",
+    "models/props_phx/games/chess/white_knight.mdl",
+    "models/props_phx/games/chess/white_bishop.mdl",
+    "models/props_phx/games/chess/white_rook.mdl",
+    "models/props_phx/games/chess/white_queen.mdl"
+)
+
+Squares = table()
+
+function number string:isUpper() {
+    return This:matchFirst("%u") == This
+}
+
+function number string:isDigit() {
+    return This:matchFirst("%d") == This
+}
+
+PieceTypeFromSymbol = table(
+    "k" = Piece["King", number],
+    "p" = Piece["Pawn", number],
+    "n" = Piece["Knight", number],
+    "b" = Piece["Bishop", number],
+    "r" = Piece["Rook", number],
+    "q" = Piece["Queen", number]
+)
+
+function positionFromFen(Fen:string) {
+    local Sections = Fen:explode(" ")
+    
+    local File = 0
+    local Rank = 7
+    
+    foreach (Grr:number, Symbol:string = Sections[1, string]:explode("")) {
+        if (Symbol == "/") {
+            File = 0
+            Rank--
+        } else {
+            if (Symbol:isDigit()) {
+                File += Symbol:toNumber()
+            } else {
+                local PieceColor = (Symbol:isUpper()) ? Piece["White", number] : Piece["Black", number]
+                local PieceType = PieceTypeFromSymbol[Symbol:lower(), number]
+
+                Squares[Rank * 8 + File, number] = PieceType || PieceColor
+                File++
+            }
+        }
+    }
+    
+    # WhiteToMove = Sections[2, string] == "w"
+}
+
+function table planeIntersection(RayPos:vector, RayDir:vector, PlanePos:vector, PlaneUp:vector, PlaneRight:vector, PlaneForward:vector) {
+    local DotProduct = RayDir:dot(PlaneForward)
+    if (abs(DotProduct) > 1e-6) {
+        local T = (PlanePos - RayPos):dot(PlaneForward) / DotProduct
+        local PointWorld = RayPos + RayDir * T
+        local LocalOffset = PointWorld - PlanePos
+        local X = LocalOffset:dot(PlaneUp)
+        local Y = LocalOffset:dot(PlaneRight)
+        local PointLocal = vec2(X, Y)
+        if (T >= 0) {
+            local RaycastResult = table(
+                "pointWorld" = PointWorld,
+                "pointLocal" = PointLocal,
+                "pointOrigin" = RayPos,
+                "distance" = T
+            )
+            return RaycastResult
+        }
+    }
+    
+    return table() #No intersection
+}
+
+function number tileIndex(Pos:vector2) {
+    return Pos:x() * 8 + Pos:y()
+}
+
+function vector2 tilePos(Index) {
+    local File = floor(Index % 8)
+    local Rank = floor(Index / 8)
+    
+    return vec2(Rank, File)
+}
+
+function vector2 vector2:round() {
+    return vec2(round(This:x()), round(This:y()))  
+}
+
+function table entity:raycast() {
+    return planeIntersection(This:shootPos(), This:eye(),  entity():pos(), entity():forward(), -entity():right(), entity():up())        
+}
+
+function vector2 entity:getAimTile() {
+    local R = This:raycast()
+    
+    local Pos = ((R["pointLocal", vector2] / Scale) + vec2(3.5)):round()
+    return clamp(Pos, vec2(), vec2(7))
+}
+
+function vector2 table:getAimTile() {
+    local Pos = ((This["pointLocal", vector2] / Scale) + vec2(3.5)):round()
+    return clamp(Pos, vec2(), vec2(7))
+}
+
+function drawPieces() {
+    for (I=0, 63) {
+        holoAlpha(I+65, 0)
+        local PieceN = Squares[I, number]
+        
+        if (!PieceN) { continue }
+        
+        local Color = PieceN && Masks["colourMask", number]
+        local PieceType = PieceN && Masks["typeMask", number]
+        
+        if (!PieceType) { continue }
+        
+        local Model = Color == 8 ? PiecesWhite[PieceType, string] : PiecesBlack[PieceType, string]
+        
+        holoModel(I+65, Model)
+        holoPos(I+65, entity():toWorld(vec((tilePos(I) - vec2(3.5)) * Scale, 0)))
+        holoAlpha(I+65, 255)
+        
+        if (Color == 16) {
+            holoAng(I+65, entity():toWorld(ang(0, 180, 0)))
+        } else {
+            holoAng(I+65, entity():toWorld(ang()))
+        }
+        
+        local Size = holoScaleUnits(I+65)
+        local Factor = Scale / Size:y()
+        
+        holoScaleUnits(I+65, Size * Factor * 0.8)
+    }
+}
+
+function setupBoard() {    
+    Squares:clear()
+    positionFromFen(StartFen)
+    DrawPieces = 1
+    entity():soundPlay(1, 0, "buttons/blip1.wav")
+}
+
+function tileConstructor(Index) {
+    local Pos = tilePos(Index - 1)
+    local LightSquare = (Pos:x() + Pos:y()) % 2 != 0
+    
+    local Color = LightSquare ? White : Black
+
+    holoPos(Index, entity():toWorld(vec((Pos - vec2(3.5)) * Scale, 0)))
+    holoColor(Index, Color)
+    holoScaleUnits(Index, vec(Scale))
+    holoModel(Index, "plane")
+    holoAlpha(Index, 255)
+    holoMaterial(Index, Material)
+}
+
+event tick() {
+    while (perf() & holoCanCreate() & !HoloQueueComplete) {
+        holoCreate(HoloQueueIndex)
+        holoAlpha(HoloQueueIndex, 0)
+        holoParent(HoloQueueIndex, entity())
+        holoScaleUnits(HoloQueueIndex, vec(Scale))
+        
+        if (HoloQueueIndex < 65) {
+            tileConstructor(HoloQueueIndex)
+        }
+        
+        HoloQueueIndex++
+        
+        if (HoloQueueIndex > HoloAmount) {
+            HoloQueueComplete = 1
+            setupBoard()
+        }
+    }
+    
+    if (HoloQueueComplete) {
+        if (Selector:isValid()) {
+            local AimTile = Selector:getAimTile()
+            holoPos(SelectedPiece + 65, entity():toWorld(vec((AimTile - vec2(3.5)) * Scale, 0.1)))
+        }
+    }
+    
+    if (DrawPieces & perf(80)) {
+        drawPieces()
+        DrawPieces = 0
+    }
+}
+
+event keyPressed(Player:entity, Grrrr:string, Down:number, KeyBind:string) {
+    if (KeyBind == "use") {
+        local R = Player:raycast()
+        if (!R:count() & Down) { exit() }
+        
+        local InBoard = inrange(R["pointLocal", vector2], vec2(-4 * Scale), vec2(4 * Scale))
+        if (!InBoard & Down) { exit() }
+
+        local PiecePos = R:getAimTile()
+        local PieceIndex = tileIndex(PiecePos)
+        
+        local PieceN = Squares[PieceIndex, number]
+        
+        if (Down & !Selector:isValid() & PieceN) {
+            Selector = Player
+            SelectedPiece = PieceIndex
+            holoAlpha(SelectedPiece + 65, 200)
+        } elseif (!Down & Selector:isValid() & Selector == Player) {
+            if ((Squares[PieceIndex, number] && 24) == (Squares[SelectedPiece, number] && 24)) { # cancel if target piece is the same color
+                holoAlpha(SelectedPiece + 65, 255)
+                SelectedPiece = 0
+                Selector = noentity()
+                DrawPieces = 1
+                entity():soundPlay(1, 0, "buttons/spark1.wav")
+                exit()
+            }
+            
+            Squares[PieceIndex, number] = Squares[SelectedPiece, number]
+            Squares:unset(SelectedPiece)
+
+            entity():soundPlay(1, 0, "buttons/bell1.wav")
+
+            SelectedPiece = 0
+            DrawPieces = 1
+            Selector = noentity()
+        }
+    }
+}
+
+event chat(Player:entity, Message:string, Grrrrr:number) {
+    if (Message == "reset") {
+        if (!inrange(Player:raycast()["pointLocal", vector2], vec2(-4 * Scale), vec2(4 * Scale))) { exit() }
+        
+        hideChat(1)
+        setupBoard()
+    }
+}
