@@ -1,9 +1,9 @@
 @name Chess
 @persist HoloQueueIndex HoloAmount HoloQueueComplete # holo queue stuff
 @persist White:vector4 Black:vector4 Material:string # Cosmetics
-@persist Scale [Piece PieceTypeFromSymbol]:table [PiecesBlack PiecesWhite]:array # piece data
-@persist Squares:table #WhiteToMove # board data
-@persist Masks:table DrawPieces StartFen:string
+@persist Scale [Piece PieceTypeFromSymbol Masks]:table [PiecesBlack PiecesWhite]:array # piece data
+@persist Squares:table # board data
+@persist DrawPieces StartFen:string
 @persist SelectedPiece Selector:entity
 @strict 1
 
@@ -27,8 +27,10 @@ Material = "models/props_pipes/GutterMetal01a" # material of the tiles
 
 StartFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" # Start piece position
 
+#[XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX]#
+
 HoloQueueIndex = 1
-HoloAmount = 128 + 2
+HoloAmount = 128
 HoloQueueComplete = 0
 
 SelectedPiece = 0
