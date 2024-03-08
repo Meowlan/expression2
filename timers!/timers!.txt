@@ -64,15 +64,15 @@ event tick() {
             continue
         }
 
-        if (Timer["repetitions", number] < 1) {
-            Timer["creationTime", number] = Timer["creationTime", number] + Timer["delay", number]
-        } elseif (Timer["repetitions", number] > 0) {
-            Timer["creationTime", number] = Timer["creationTime", number] + Timer["delay", number]
+        if (Timer["repetitions", number] > 0) {
             Timer["repetitions", number] = Timer["repetitions", number] - 1
             
             if (Timer["repetitions", number] < 1) {
                 Timers:remove(Index)
+                break
             }
         }
+        
+        Timer["creationTime", number] = Timer["creationTime", number] + Timer["delay", number]
     }
 }
