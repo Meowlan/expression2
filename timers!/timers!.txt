@@ -1,0 +1,78 @@
+@name Timers!
+@persist Timers:table
+
+#[ Timers!
+    A very crude but useful timer library.
+
+    Feel free to use this code as you
+    please, except for selling it.
+    
+    https://ko-fi.com/meowlan
+    https://github.com/Meowlan
+]#
+
+#[ Example:
+  #include "Timers!"
+  
+  function testTimer(Self:table) { # The function must only have one table parameter!
+      print("This is a delayed test messaged!")
+      
+      # If you want to delete the timer simply do the following:
+      # deleteTimer(Self)
+  }
+  
+  print("Test message in 5 seconds!")
+  timer(0.8, 5, "testTimer") # Creates a timer with a delay of 0.8 Seconds, repeats it 5 times and calls the function "test"
+]#
+
+
+if (first()) {
+    Timers = table()
+}
+
+function table timer(Delay, Repetitions, Callback:string) {
+    local Time = systime()
+    local Timer = table(
+        "creationTime" = Time,
+        "delay" = Delay,
+        "callback" = Callback,
+        "repetitions" = Repetitions
+    )
+    
+    local ID = Timer:id()
+    Timers[ID, table] = Timer
+    Timer["id", string] = ID
+    
+    return Timer
+}
+
+function deleteTimer(Timer:table) {
+    Timers:removeTable(Timer["id", string])
+}
+
+event tick() {
+    local Time = systime()
+    
+    foreach(Index:string, Timer:table = Timers) {
+        if (Time < Timer["creationTime", number] + Timer["delay", number]) { continue }
+            
+        try {
+            Timer["callback", string](Timer)
+        } catch(Error) {
+            print("Timer Failed! " + Error)
+            Timers:remove(Index)
+            continue
+        }
+
+        if (Timer["repetitions", number] < 1) {
+            Timer["creationTime", number] = Timer["creationTime", number] + Timer["delay", number]
+        } elseif (Timer["repetitions", number] > 0) {
+            Timer["creationTime", number] = Timer["creationTime", number] + Timer["delay", number]
+            Timer["repetitions", number] = Timer["repetitions", number] - 1
+            
+            if (Timer["repetitions", number] < 1) {
+                Timers:remove(Index)
+            }
+        }
+    }
+}
