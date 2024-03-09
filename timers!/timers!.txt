@@ -68,8 +68,8 @@ event tick() {
             Timer["repetitions", number] = Timer["repetitions", number] - 1
             
             if (Timer["repetitions", number] < 1) {
-                Timers:remove(Index)
-                break
+                Timers:removeTable(Index)
+                continue
             }
         }
         
