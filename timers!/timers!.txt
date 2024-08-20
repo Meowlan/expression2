@@ -14,7 +14,7 @@
 #[ Example:
   #include "Timers!"
   
-  function testTimer(Self:table) { # The function must only have one table parameter!
+  function testTimer() {
       print("This is a delayed test messaged!")
       
       # If you want to delete the timer simply do the following:
@@ -57,7 +57,7 @@ event tick() {
         if (Time < Timer["creationTime", number] + Timer["delay", number]) { continue }
             
         try {
-            Timer["callback", string](Timer)
+            Timer["callback", string]()
         } catch(Error) {
             print("Timer Failed! " + Error)
             Timers:remove(Index)
